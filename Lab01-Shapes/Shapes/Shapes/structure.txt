@@ -1,0 +1,39 @@
+﻿Lab04.Shapes/
+├── Lab04.Shapes.csproj
+├── Program.cs                          // цикл чтения stdin, точка сборки зависимостей
+│
+├── Shapes/                             // namespace Shapes — доменная модель, БЕЗ ввода-вывода
+│   ├── Shape.cs                        // класс Shape: Id, Color, IShapeGeometry Geometry
+│   ├── IShapeGeometry.cs               // стратегия: Move, Draw, GetParams, TypeName
+│   ├── Picture.cs                      // хранит List<Shape> + Dictionary<string, Shape>
+│   │
+│   └── Geometries/                     // конкретные стратегии
+│       ├── CircleGeometry.cs
+│       ├── RectangleGeometry.cs
+│       ├── TriangleGeometry.cs
+│       ├── LineGeometry.cs
+│       └── TextGeometry.cs
+│
+├── ShapeFactory/                       // расширяемость живёт здесь
+│   ├── IShapeGeometryFactory.cs
+│   └── ShapeGeometryFactory.cs         // Dictionary<string, Func<string[], IShapeGeometry>>
+│                                        // добавление типа = Register("ellipse", args => new EllipseGeometry(args))
+│
+├── Gfx/                                // namespace Gfx — интерфейс из задания
+│   ├── ICanvas.cs                      // SetColor, MoveTo, LineTo, DrawEllipse, DrawText
+│   │   ├── Color.cs
+│   └── SvgCanvas.cs                    // реализация — рисуем в SVG, это проще всего для консоли
+│
+└── Commands/                           // парсинг и диспетчеризация команд
+    ├── ICommandHandler.cs              // Execute(string[] args, Picture picture, ICanvas canvas)
+    ├── CommandDispatcher.cs            // Dictionary<string, ICommandHandler>, парсит первое слово строки
+    └── Handlers/
+        ├── AddShapeCommand.cs
+        ├── MoveShapeCommand.cs
+        ├── MovePictureCommand.cs
+        ├── DeleteShapeCommand.cs
+        ├── ListCommand.cs
+        ├── ChangeColorCommand.cs
+        ├── ChangeShapeCommand.cs
+        ├── DrawShapeCommand.cs
+        └── DrawPictureCommand.cs
