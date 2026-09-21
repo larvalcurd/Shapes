@@ -35,6 +35,8 @@ public class TextGeometry : IShapeGeometry
     public string GetParamsString() =>
         $"{NumberFormat.Format(_left)} {NumberFormat.Format(_top)} {NumberFormat.Format(_fontSize)} {_text}";
     
+    public IShapeGeometry Clone() => (IShapeGeometry)MemberwiseClone();
+    
     public static TextGeometry Parse(string raw)
     {
         var p = raw.Split(' ', 4, StringSplitOptions.RemoveEmptyEntries);

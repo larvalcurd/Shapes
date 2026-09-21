@@ -43,4 +43,14 @@ public class Picture
         foreach (var shape in _order) 
             shape.Draw(canvas);
     }
+
+    public Picture Clone()
+    {
+        var clone = new Picture();
+        foreach (var shape in _order)
+        {
+            clone.AddShape(shape.Clone(shape.Id));
+        }
+        return clone;
+    }
 }

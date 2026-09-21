@@ -29,4 +29,6 @@ public class FakeGeometry : IShapeGeometry
     }
 
     public string GetParamsString() => "fake-params";
+    
+    public IShapeGeometry Clone() => new FakeGeometry();
 }

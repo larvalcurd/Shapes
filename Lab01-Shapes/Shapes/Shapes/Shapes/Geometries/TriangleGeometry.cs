@@ -45,6 +45,8 @@ public class TriangleGeometry : IShapeGeometry
         $"{NumberFormat.Format(_x1)} {NumberFormat.Format(_y1)} " +
         $"{NumberFormat.Format(_x2)} {NumberFormat.Format(_y2)} " +
         $"{NumberFormat.Format(_x3)} {NumberFormat.Format(_y3)}";
+    
+    public IShapeGeometry Clone() => (IShapeGeometry)MemberwiseClone();
 
     public static TriangleGeometry Parse(string raw)
     {

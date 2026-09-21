@@ -6,4 +6,5 @@ public interface IShapeGeometry
     void Move(double dx, double dy);
     void Draw(Gfx.ICanvas canvas, Gfx.Color color);
     string GetParamsString();
+    IShapeGeometry Clone();
 }

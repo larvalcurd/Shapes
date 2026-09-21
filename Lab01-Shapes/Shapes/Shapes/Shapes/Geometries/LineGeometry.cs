@@ -38,6 +38,8 @@ public class LineGeometry : IShapeGeometry
         $"{NumberFormat.Format(_x1)} {NumberFormat.Format(_y1)} " +
         $"{NumberFormat.Format(_x2)} {NumberFormat.Format(_y2)}";
     
+    public IShapeGeometry Clone() => (IShapeGeometry)MemberwiseClone();
+    
     public static LineGeometry Parse(string raw)
     {
         var p = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);

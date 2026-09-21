@@ -38,6 +38,7 @@ public class RectangleGeometry : IShapeGeometry
 
     public string GetParamsString() => $"{NumberFormat.Format(_left)} {NumberFormat.Format(_top)} {NumberFormat.Format(_width)} {NumberFormat.Format(_height)}";
 
+    public IShapeGeometry Clone() => (IShapeGeometry)MemberwiseClone();
 
     public static RectangleGeometry Parse(string raw)
     {

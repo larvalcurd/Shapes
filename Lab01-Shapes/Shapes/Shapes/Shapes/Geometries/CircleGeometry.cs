@@ -31,6 +31,8 @@ public class CircleGeometry : IShapeGeometry
 
     public string GetParamsString() =>
         $"{NumberFormat.Format(_x)} {NumberFormat.Format(_y)} {NumberFormat.Format(_r)}";
+    
+    public IShapeGeometry Clone() => (IShapeGeometry)MemberwiseClone();
 
     public static CircleGeometry Parse(string raw)
     {
