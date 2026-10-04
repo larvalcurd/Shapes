@@ -10,7 +10,7 @@ public class CircleGeometry : IShapeGeometry
 
     public CircleGeometry(double x, double y, double r)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(r, 0);
+        ArgumentOutOfRangeException.ThrowIfNegative(r);
         _x = x; 
         _y = y; 
         _r = r;
@@ -20,19 +20,19 @@ public class CircleGeometry : IShapeGeometry
 
     public void Move(double dx, double dy)
     {
-        _x += dx; _y += dy;
+        _x += dx; 
+        _y += dy;
     }
 
-    public void Draw(ICanvas canvas, Color color)
+    public void Draw(ICanvas canvas)
     {
-        canvas.SetColor(color);
         canvas.DrawEllipse(_x, _y, _r, _r);
     }
 
     public string GetParamsString() =>
         $"{NumberFormat.Format(_x)} {NumberFormat.Format(_y)} {NumberFormat.Format(_r)}";
     
-    public IShapeGeometry Clone() => (IShapeGeometry)MemberwiseClone();
+    public IShapeGeometry Clone() => new CircleGeometry(_x, _y, _r);
 
     public static CircleGeometry Parse(string raw)
     {

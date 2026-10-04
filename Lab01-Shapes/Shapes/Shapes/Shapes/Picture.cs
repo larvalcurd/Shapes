@@ -1,56 +1,58 @@
-﻿namespace Shapes.Shapes;
+﻿using Shapes.Gfx;
+
+namespace Shapes.Shapes;
 
 public class Picture
 {
-    private readonly List<Shape> _order = [];
-    private readonly Dictionary<string, Shape> _byId = [];
+    private readonly List<Shape> _shapes = [];
 
     public void AddShape(Shape shape)
     {
-        if (!_byId.TryAdd(shape.Id, shape))
-            throw new InvalidOperationException($"Shape with id '{shape.Id}' already exists");
-        
-        _order.Add(shape);
+        if (GetShape(shape.Id) != null)
+            throw new InvalidOperationException($"Shape with id '{shape.Id}' already exists.");
+
+        _shapes.Add(shape);
     }
-    
+
+    public Shape? GetShape(string id)
+    {
+        return _shapes.FirstOrDefault(shape => shape.Id == id);
+    }
+
     public void DeleteShape(string id)
     {
-        if (!_byId.Remove(id, out var shape))
-            throw new InvalidOperationException($"Shape with id '{id}' not found");
+        var shape = GetShape(id);
 
-        _order.Remove(shape);
-    }
-    
-    public Shape GetShape(string id)
-    {
-        return _byId.TryGetValue(id, out var shape) 
-            ? shape 
-            : throw new InvalidOperationException($"Shape with id '{id}' not found");
-    }
-    
-    public IReadOnlyList<Shape> GetShapesInOrder() => _order;
+        if (shape == null)
+            throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
 
-    public void Move(double dx, double dy)
+        _shapes.Remove(shape);
+    }
+
+    public void CloneShape(string id, string newId)
     {
-        foreach (var shape in _order)
-        {
+        if (GetShape(newId) != null)
+            throw new InvalidOperationException($"Shape with id '{newId}' already exists.");
+
+        var shape = GetShape(id);
+
+        if (shape == null)
+            throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
+
+        _shapes.Add(shape.Clone(newId));
+    }
+
+    public IReadOnlyList<Shape> GetShapes() => [.. _shapes];
+
+    public void MovePicture(double dx, double dy)
+    {
+        foreach (var shape in _shapes)
             shape.Move(dx, dy);
-        }
     }
 
-    public void Draw(Gfx.ICanvas canvas)
+    public void DrawPicture(ICanvas canvas)
     {
-        foreach (var shape in _order) 
+        foreach (var shape in _shapes)
             shape.Draw(canvas);
-    }
-
-    public Picture Clone()
-    {
-        var clone = new Picture();
-        foreach (var shape in _order)
-        {
-            clone.AddShape(shape.Clone(shape.Id));
-        }
-        return clone;
     }
 }

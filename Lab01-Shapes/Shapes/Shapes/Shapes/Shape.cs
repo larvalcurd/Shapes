@@ -6,10 +6,24 @@ public class Shape(string id, Color color, IShapeGeometry geometry)
 {
     public string Id { get; } = id;
     public Color Color { get; set; } = color;
-    public IShapeGeometry Geometry { get; set; } = geometry;
+    private IShapeGeometry _geometry = geometry;
 
-    public void Move(double dx, double dy) => Geometry.Move(dx, dy);
-    public void Draw(ICanvas canvas) => Geometry.Draw(canvas, Color);
-    
-    public Shape Clone(string newId) => new Shape(newId, Color, Geometry.Clone());
+    public void Move(double dx, double dy) => _geometry.Move(dx, dy);
+
+    public void Draw(ICanvas canvas)
+    {
+        canvas.SetColor(Color);
+        _geometry.Draw(canvas);
+    }
+
+    public void ReplaceGeometry(IShapeGeometry newGeometry)
+    {
+        _geometry = newGeometry;
+    }
+
+    public string GetTypeName() => _geometry.TypeName;
+
+    public string GetParamsString() => _geometry.GetParamsString();
+
+    public Shape Clone(string newId) => new Shape(newId, Color, _geometry.Clone());
 }
