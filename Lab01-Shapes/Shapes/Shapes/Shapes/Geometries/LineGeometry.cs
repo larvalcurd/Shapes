@@ -8,10 +8,7 @@ public class LineGeometry : IShapeGeometry
     private double _x1, _y1, _x2, _y2;
 
     public LineGeometry(double x1, double y1, double x2, double y2)
-    {
-        if (Math.Abs(x1 - x2) < 1e-10 && Math.Abs(y1 - y2) <= 1e-10)
-            throw new ArgumentException("The points coincide and do not form a valid line");
-        
+    {   
         _x1 = x1;
         _y1 = y1;
         _x2 = x2;
@@ -27,9 +24,8 @@ public class LineGeometry : IShapeGeometry
         _y2 += dy;
     }
 
-    public void Draw(ICanvas canvas, Color color)
+    public void Draw(ICanvas canvas)
     {
-        canvas.SetColor(color);
         canvas.MoveTo(_x1, _y1);
         canvas.LineTo(_x2, _y2);
     }
@@ -38,7 +34,7 @@ public class LineGeometry : IShapeGeometry
         $"{NumberFormat.Format(_x1)} {NumberFormat.Format(_y1)} " +
         $"{NumberFormat.Format(_x2)} {NumberFormat.Format(_y2)}";
     
-    public IShapeGeometry Clone() => (IShapeGeometry)MemberwiseClone();
+    public IShapeGeometry Clone() => new LineGeometry(_x1, _y1, _x2, _y2);
     
     public static LineGeometry Parse(string raw)
     {
