@@ -15,7 +15,7 @@ var outputPath = args[0];
 
 var factory = DefaultFactory.CreateDefault();
 var picture = new Picture();
-var canvas = new SvgCanvas();
+var canvas = new SvgCanvas(1200, 1200);
 
 var dispatcher = new CommandDispatcher();
 dispatcher.Register("AddShape", new AddShapeCommand());
