@@ -1,6 +1,6 @@
 ﻿namespace Shapes.Commands;
 
-public class CommandContext(
+public class CommandDependencies(
     Shapes.Picture picture,
     Gfx.ICanvas canvas,
     Shapes.ShapeFactory.IShapeGeometryFactory factory)

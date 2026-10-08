@@ -1,9 +1,7 @@
 ﻿using Shapes.Gfx;
 using Shapes.Commands;
 using Shapes.Commands.Handlers;
-using Shapes.Formatting;
 using Shapes.Shapes;
-using Shapes.Shapes.ShapeFactory;
 
 if (args.Length < 1)
 {
@@ -13,7 +11,6 @@ if (args.Length < 1)
 
 var outputPath = args[0];
 
-var factory = DefaultFactory.CreateDefault();
 var picture = new Picture();
 var canvas = new SvgCanvas(1200, 1200);
 
@@ -29,11 +26,11 @@ dispatcher.Register("ChangeShape", new ChangeShapeCommand());
 dispatcher.Register("DrawShape", new DrawShapeCommand());
 dispatcher.Register("DrawPicture", new DrawPictureCommand());
 
-var ctx = new CommandContext(picture, canvas, factory);
+var dependencies = new CommandDependencies(picture, canvas, factory);
 
 while (Console.ReadLine() is { } line)
 {
-    dispatcher.Dispatch(line, ctx);
+    dispatcher.Dispatch(line, dependencies);
 }
 
 canvas.Save(outputPath);
