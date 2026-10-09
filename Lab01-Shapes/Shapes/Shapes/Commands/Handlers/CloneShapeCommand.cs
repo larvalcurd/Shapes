@@ -1,16 +1,23 @@
-﻿namespace Shapes.Commands.Handlers;
+﻿using Shapes.Shapes;
 
-public class CloneShapeCommand : ICommandHandler
+namespace Shapes.Commands.Handlers;
+
+public class CloneShapeCommand(Picture picture) : ICommand
 {
-    public void Execute(string argsRaw, CommandContext ctx)
-    {
-        var parts = argsRaw.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
-        var id = parts[0];
-        var newId = parts[1];
+    private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
 
-        var original = ctx.Picture.GetShape(id);
-        var clone = original.Clone(newId);
-        
-        ctx.Picture.AddShape(clone);
+    public void Execute(string args)
+    {
+        var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
+
+        if (tokens.Length != 2)
+        {
+            throw new ArgumentException("Command 'CloneShape' requires exactly 2 arguments: source_id and new_id.");
+        }
+
+        var id = tokens[0];
+        var newId = tokens[1];
+
+        _picture.CloneShape(id, newId);
     }
 }

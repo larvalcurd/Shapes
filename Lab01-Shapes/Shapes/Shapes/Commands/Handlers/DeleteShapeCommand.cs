@@ -1,11 +1,22 @@
-﻿namespace Shapes.Commands.Handlers;
+﻿using Shapes.Shapes;
 
-public class DeleteShapeCommand : ICommandHandler
+namespace Shapes.Commands.Handlers;
+
+public class DeleteShapeCommand(Picture picture) : ICommand
 {
-    public void Execute(string argsRaw, CommandContext ctx)
+    private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
+
+    public void Execute(string args)
     {
-        var parts = argsRaw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var id = parts[0];
-        ctx.Picture.DeleteShape(id);
+        var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
+
+        if (tokens.Length != 1)
+        {
+            throw new ArgumentException("Command 'DeleteShape' requires exactly 1 argument: id.");
+        }
+
+        var id = tokens[0];
+
+        _picture.DeleteShape(id);
     }
 }

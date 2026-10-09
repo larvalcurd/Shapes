@@ -1,12 +1,27 @@
-﻿namespace Shapes.Commands.Handlers;
+﻿using Shapes.Commands.Parsers;
+using Shapes.Shapes;
 
-public class ChangeColorCommand : ICommandHandler
+namespace Shapes.Commands.Handlers;
+
+public class ChangeColorCommand(Picture picture) : ICommand
 {
-    public void Execute(string argsRaw, CommandContext ctx)
+    private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
+
+    public void Execute(string args)
     {
-        var parts = argsRaw.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
-        var id = parts[0];
-        var color = Gfx.Color.Parse(parts[1]);
-        ctx.Picture.GetShape(id).Color = color;
+        var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
+
+        if (tokens.Length != 2)
+        {
+            throw new ArgumentException("Command 'ChangeColor' requires exactly 2 arguments: id and color.");
+        }
+
+        var id = tokens[0];
+
+        var newColor = ColorParser.Parse(tokens[1]);
+
+        Shape? shape = _picture.GetShape(id) ?? throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
+
+        shape.Color = newColor;
     }
 }

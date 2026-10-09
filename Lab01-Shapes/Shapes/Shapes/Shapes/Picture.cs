@@ -21,11 +21,7 @@ public class Picture
 
     public void DeleteShape(string id)
     {
-        var shape = GetShape(id);
-
-        if (shape == null)
-            throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
-
+        var shape = GetShape(id) ?? throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
         _shapes.Remove(shape);
     }
 
@@ -34,11 +30,7 @@ public class Picture
         if (GetShape(newId) != null)
             throw new InvalidOperationException($"Shape with id '{newId}' already exists.");
 
-        var shape = GetShape(id);
-
-        if (shape == null)
-            throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
-
+        var shape = GetShape(id) ?? throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
         _shapes.Add(shape.Clone(newId));
     }
 

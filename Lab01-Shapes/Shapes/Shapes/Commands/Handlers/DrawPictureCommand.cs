@@ -1,9 +1,22 @@
-﻿namespace Shapes.Commands.Handlers;
+﻿using Shapes.Gfx;
+using Shapes.Shapes;
 
-public class DrawPictureCommand : ICommandHandler
+namespace Shapes.Commands.Handlers;
+
+public class DrawPictureCommand(Picture picture, ICanvas canvas) : ICommand
 {
-    public void Execute(string argsRaw, CommandContext ctx)
+    private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
+    private readonly ICanvas _canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
+
+    public void Execute(string args)
     {
-        ctx.Picture.Draw(ctx.Canvas);
+        var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
+
+        if (tokens.Length > 0)
+        {
+            throw new ArgumentException("Command 'DrawPicture' does not accept any arguments.");
+        }
+
+        _picture.DrawPicture(_canvas);
     }
 }

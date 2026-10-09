@@ -1,18 +1,33 @@
-﻿using Shapes.Shapes;
+﻿using Shapes.Commands.Parsers;
+using Shapes.Shapes;
 
 namespace Shapes.Commands.Handlers;
 
-public class AddShapeCommand : ICommandHandler
+public class AddShapeCommand(Picture picture, Registry registry) : ICommand
 {
-    public void Execute(string argsRaw, CommandContext ctx)
-    {
-        var parts = argsRaw.Split(' ', 4, StringSplitOptions.RemoveEmptyEntries);
-        var id = parts[0];
-        var color = Gfx.Color.Parse(parts[1]);
-        var type = parts[2];
-        var paramsRaw = parts.Length > 3 ? parts[3] : "";
+    private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
+    private readonly Registry _registry = registry ?? throw new ArgumentNullException(nameof(registry));
 
-        var geometry = ctx.Factory.Create(type, paramsRaw);
-        ctx.Picture.AddShape(new Shape(id, color, geometry));
+    public void Execute(string args)
+    {
+        var tokens = args.Split([' '], 4, StringSplitOptions.RemoveEmptyEntries);
+
+        if (tokens.Length < 4)
+        {
+            throw new ArgumentException("Command 'AddShape' requires at least 4 arguments: id, color, type, and parameters.");
+        }
+
+        var id = tokens[0];
+        var colorRaw = tokens[1];
+        var type = tokens[2];
+        var paramsString = tokens[3];
+
+        var color = ColorParser.Parse(colorRaw);
+
+        var geometry = _registry.Create(type, paramsString);
+
+        var shape = new Shape(id, color, geometry);
+
+        _picture.AddShape(shape);
     }
 }

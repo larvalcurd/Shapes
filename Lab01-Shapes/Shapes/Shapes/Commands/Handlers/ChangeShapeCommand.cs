@@ -1,16 +1,29 @@
-﻿namespace Shapes.Commands.Handlers;
+﻿using Shapes.Shapes;
 
-public class ChangeShapeCommand : ICommandHandler
+namespace Shapes.Commands.Handlers;
+
+public class ChangeShapeCommand(Picture picture, Registry registry) : ICommand
 {
-    public void Execute(string argsRaw, CommandContext ctx)
+    private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
+    private readonly Registry _registry = registry ?? throw new ArgumentNullException(nameof(registry));
+
+    public void Execute(string args)
     {
-        var parts = argsRaw.Split(' ', 3, StringSplitOptions.RemoveEmptyEntries);
-        var id = parts[0];
-        var type = parts[1];
-        var paramsRaw = parts.Length > 2 ? parts[2] : "";
-        
-        var shape = ctx.Picture.GetShape(id);
-        var newGeometry = ctx.Factory.Create(type, paramsRaw);
-        shape.Geometry = newGeometry;
+        var tokens = args.Split([' '], 3, StringSplitOptions.RemoveEmptyEntries);
+
+        if (tokens.Length < 3)
+        {
+            throw new ArgumentException("Command 'ChangeShape' requires at least 3 arguments: id, type, and parameters.");
+        }
+
+        var id = tokens[0];
+        var type = tokens[1];
+        var paramsString = tokens[2];
+
+        Shape? shape = _picture.GetShape(id) ?? throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
+
+        var newGeometry = _registry.Create(type, paramsString);
+
+        shape.ReplaceGeometry(newGeometry);
     }
 }

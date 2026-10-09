@@ -1,11 +1,25 @@
-﻿namespace Shapes.Commands.Handlers;
+﻿using Shapes.Gfx;
+using Shapes.Shapes;
 
-public class DrawShapeCommand : ICommandHandler
+namespace Shapes.Commands.Handlers;
+
+public class DrawShapeCommand(Picture picture, ICanvas canvas) : ICommand
 {
-    public void Execute(string argsRaw, CommandContext ctx)
+    private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
+    private readonly ICanvas _canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
+
+    public void Execute(string args)
     {
-        var parts = argsRaw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var id = parts[0];
-        ctx.Picture.GetShape(id).Draw(ctx.Canvas);
+        var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
+
+        if (tokens.Length != 1)
+            throw new ArgumentException("Command 'DrawShape' requires exactly 1 argument: id.");
+
+        var id = tokens[0];
+
+        Shape? shape = _picture.GetShape(id)
+            ?? throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
+
+        shape.Draw(_canvas);
     }
 }
