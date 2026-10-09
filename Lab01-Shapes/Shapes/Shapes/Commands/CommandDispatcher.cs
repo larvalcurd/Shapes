@@ -32,9 +32,17 @@ public class CommandDispatcher(TextWriter output)
 
         try
         {
-            command.Execute(rest);
+            var result = command.Execute(rest);
+
+            if (!string.IsNullOrEmpty(result))
+            {
+                _output.WriteLine(result);
+            }
         }
-        catch (Exception ex)
+        catch (Exception ex)when (ex is ArgumentException 
+                                      or InvalidOperationException 
+                                      or FormatException 
+                                      or OverflowException)
         {
             _output.WriteLine($"Error: {ex.Message}");
         }

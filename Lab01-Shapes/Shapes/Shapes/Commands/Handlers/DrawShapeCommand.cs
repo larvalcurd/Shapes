@@ -8,7 +8,7 @@ public class DrawShapeCommand(Picture picture, ICanvas canvas) : ICommand
     private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
     private readonly ICanvas _canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
 
-    public void Execute(string args)
+    public string Execute(string args)
     {
         var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
 
@@ -21,5 +21,6 @@ public class DrawShapeCommand(Picture picture, ICanvas canvas) : ICommand
             ?? throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
 
         shape.Draw(_canvas);
+        return $"Drew shape {id}";
     }
 }

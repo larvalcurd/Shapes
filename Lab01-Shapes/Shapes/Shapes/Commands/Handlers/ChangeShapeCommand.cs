@@ -7,7 +7,7 @@ public class ChangeShapeCommand(Picture picture, Registry registry) : ICommand
     private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
     private readonly Registry _registry = registry ?? throw new ArgumentNullException(nameof(registry));
 
-    public void Execute(string args)
+    public string Execute(string args)
     {
         var tokens = args.Split([' '], 3, StringSplitOptions.RemoveEmptyEntries);
 
@@ -25,5 +25,6 @@ public class ChangeShapeCommand(Picture picture, Registry registry) : ICommand
         var newGeometry = _registry.Create(type, paramsString);
 
         shape.ReplaceGeometry(newGeometry);
+        return $"Changed geometry of shape '{id}' to {type} with parameters: {paramsString}"; 
     }
 }

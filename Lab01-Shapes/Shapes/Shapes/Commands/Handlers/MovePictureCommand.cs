@@ -7,7 +7,7 @@ public class MovePictureCommand(Picture picture) : ICommand
 {
     private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
 
-    public void Execute(string args)
+    public string Execute(string args)
     {
         var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
         
@@ -20,5 +20,6 @@ public class MovePictureCommand(Picture picture) : ICommand
         var dy = NumberFormat.Parse(tokens[1]);
         
         _picture.MovePicture(dx, dy);
+        return $"Moved picture by dx: {dx}, dy: {dy}";
     }
 }

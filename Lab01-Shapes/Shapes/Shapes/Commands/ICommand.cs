@@ -2,5 +2,5 @@
 
 public interface ICommand
 {
-    void Execute(string argsRaw);
+    string Execute(string argsRaw);
 }

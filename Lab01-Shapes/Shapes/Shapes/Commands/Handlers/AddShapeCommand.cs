@@ -8,7 +8,7 @@ public class AddShapeCommand(Picture picture, Registry registry) : ICommand
     private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
     private readonly Registry _registry = registry ?? throw new ArgumentNullException(nameof(registry));
 
-    public void Execute(string args)
+    public string Execute(string args)
     {
         var tokens = args.Split([' '], 4, StringSplitOptions.RemoveEmptyEntries);
 
@@ -29,5 +29,6 @@ public class AddShapeCommand(Picture picture, Registry registry) : ICommand
         var shape = new Shape(id, color, geometry);
 
         _picture.AddShape(shape);
+        return $"Added {type} '{id}' with parameters: {paramsString}";
     }
 }

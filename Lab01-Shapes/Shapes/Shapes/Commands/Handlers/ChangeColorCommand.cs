@@ -7,7 +7,7 @@ public class ChangeColorCommand(Picture picture) : ICommand
 {
     private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
 
-    public void Execute(string args)
+    public string Execute(string args)
     {
         var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
 
@@ -23,5 +23,6 @@ public class ChangeColorCommand(Picture picture) : ICommand
         Shape? shape = _picture.GetShape(id) ?? throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
 
         shape.Color = newColor;
+        return $"Changed color of shape '{id}' to {newColor}";
     }
 }

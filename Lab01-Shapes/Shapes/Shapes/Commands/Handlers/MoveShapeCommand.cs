@@ -7,7 +7,7 @@ public class MoveShapeCommand(Picture picture) : ICommand
 {
     private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
 
-    public void Execute(string args)
+    public string Execute(string args)
     {
         var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
 
@@ -24,5 +24,6 @@ public class MoveShapeCommand(Picture picture) : ICommand
         var dy = NumberFormat.Parse(tokens[2]);
 
         shape.Move(dx, dy);
+        return $"Moved shape '{id}' by dx: {dx}, dy: {dy}";
     }
 }

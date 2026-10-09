@@ -6,7 +6,7 @@ public class CloneShapeCommand(Picture picture) : ICommand
 {
     private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
 
-    public void Execute(string args)
+    public string Execute(string args)
     {
         var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
 
@@ -19,5 +19,6 @@ public class CloneShapeCommand(Picture picture) : ICommand
         var newId = tokens[1];
 
         _picture.CloneShape(id, newId);
+        return $"Cloned shape '{id}' to '{newId}'";
     }
 }
