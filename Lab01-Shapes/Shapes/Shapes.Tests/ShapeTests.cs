@@ -1,78 +1,104 @@
-using Shapes;
+﻿using Shapes.Gfx;
 using Shapes.Shapes;
-using Shapes.Gfx;
-using Shapes.Tests.TestDoubles;
-using Xunit;
+using Shapes.Shapes.Geometries;
+using Shapes.Tests.Mocks;
 
 namespace Shapes.Tests;
 
 public class ShapeTests
 {
     [Fact]
-    public void Constructor_SetsIdColorAndGeometry()
+    public void Move_ChangesCoordinates_AndPreserveShapeProperties()
     {
-        var geometry = new FakeGeometry();
-        var color = Color.Parse("#ff0000");
-
-        var shape = new Shape("sh1", color, geometry);
-
-        Assert.Equal("sh1", shape.Id);
-        Assert.Equal(color, shape.Color);
-        Assert.Same(geometry, shape.Geometry);
+        var red = new Color(255, 0, 0);
+        var fake = new FakeGeometry();
+        var shape = new Shape("sh1", red, fake);
+        var originalId = shape.Id;
+        var originalColor = shape.Color;
+        
+        shape.Move(10, 20);
+        
+        Assert.Single(fake.MoveCalls);  
+        Assert.Equal((10, 20), fake.MoveCalls[0]);
+        Assert.Equal(originalId, shape.Id);
+        Assert.Equal(originalColor, shape.Color);
+    }
+    
+    [Fact]
+    public void ReplaceGeometry_ChangesTypeName_AndPreservesIdAndColor()
+    {
+        var red = new Color(255, 0, 0);
+        var shape = new Shape("sh1", red, new CircleGeometry(10, 20, 5));
+        var rect = new RectangleGeometry(0, 0, 10, 20);
+        
+        var originalId = shape.Id;
+        var originalColor = shape.Color;
+        
+        shape.ReplaceGeometry(rect);
+        
+        Assert.Equal("rectangle", shape.GetTypeName());
+        Assert.Equal(originalId, shape.Id);
+        Assert.Equal(originalColor, shape.Color);
     }
 
     [Fact]
-    public void Move_DelegatesToGeometryWithSameArguments()
+    public void Draw_SetsColorAndPassesSameCanvasBeforeDrawingGeometry()
     {
-        var geometry = new FakeGeometry();
-        var shape = new Shape("sh1", Color.Parse("#ff0000"), geometry);
+        var order = new OrderCounter();
+        var fakeCanvas = new FakeCanvas(order);
+        var fakeGeometry = new FakeGeometry(order);
+        
+        var red =  new Color(255, 0, 0);
+        var shape = new Shape("sh1", red, fakeGeometry);
 
-        shape.Move(3, -4);
+        shape.Draw(fakeCanvas);
+        
+        var colorCall = Assert.Single(fakeCanvas.Calls);
+        
+        Assert.Equal("SetColor", colorCall.Method);
+        Assert.Equal(red, (Color)colorCall.Args[0]);
 
-        Assert.Equal(1, geometry.MoveCallCount);
-        Assert.Equal(3, geometry.LastDx);
-        Assert.Equal(-4, geometry.LastDy);
+        Assert.Equal(1, fakeGeometry.DrawCallCount);
+        Assert.Same(fakeCanvas, fakeGeometry.LastCanvas);
+        
+        Assert.True(colorCall.Order < fakeGeometry.DrawOrder);
     }
 
     [Fact]
-    public void Draw_DelegatesToGeometryWithCurrentColor()
+    public void Clone_CreatesIndependentCopy_AndPreservesOriginalProperties()
     {
-        var geometry = new FakeGeometry();
-        var color = Color.Parse("#00ff00");
-        var shape = new Shape("sh1", color, geometry);
-        var canvas = new SpyCanvas();
+        var fakeOriginal = new FakeGeometry();
+        var red = new Color(255, 0, 0);
+        var shape = new Shape("sh1", red, fakeOriginal);
+        
+        var originalId = shape.Id;
+        var originalColor = shape.Color;
 
-        shape.Draw(canvas);
-
-        Assert.Equal(1, geometry.DrawCallCount);
-        Assert.Equal(color, geometry.LastDrawColor);
+        var clone = shape.Clone("sh2");
+        
+        Assert.Equal("sh2", clone.Id);
+        Assert.Equal(originalColor, clone.Color);
+        Assert.Equal(originalId, shape.Id);
+        Assert.Equal(1, fakeOriginal.CloneCallCount);
+        
+        Assert.NotNull(fakeOriginal.LastClonedResult);
+        Assert.NotSame(fakeOriginal, fakeOriginal.LastClonedResult);
     }
 
     [Fact]
-    public void Draw_UsesUpdatedColorAfterColorChanged()
+    public void Move_OnClone_DoesNotAffectOriginal()
     {
-        var geometry = new FakeGeometry();
-        var shape = new Shape("sh1", Color.Parse("#000000"), geometry);
-        var canvas = new SpyCanvas();
+        var fakeOriginal = new FakeGeometry();
+        var red = new Color(255, 0, 0);
+        var shape = new Shape("sh1", red, fakeOriginal);
+        
+        var clone = shape.Clone("sh2");
 
-        shape.Color = Color.Parse("#ffffff");
-        shape.Draw(canvas);
 
-        Assert.Equal(Color.Parse("#ffffff"), geometry.LastDrawColor);
-    }
-
-    [Fact]
-    public void ChangingGeometry_KeepsIdAndDelegatesToNewGeometry()
-    {
-        var oldGeometry = new FakeGeometry();
-        var shape = new Shape("sh1", Color.Parse("#ff0000"), oldGeometry);
-
-        var newGeometry = new FakeGeometry();
-        shape.Geometry = newGeometry;
-        shape.Move(1, 1);
-
-        Assert.Equal("sh1", shape.Id);
-        Assert.Equal(0, oldGeometry.MoveCallCount);
-        Assert.Equal(1, newGeometry.MoveCallCount);
+        clone.Move(1, 2);
+        
+        Assert.NotNull(fakeOriginal.LastClonedResult);
+        Assert.Equal((1, 2), fakeOriginal.LastClonedResult!.MoveCalls[0]);
+        Assert.Empty(fakeOriginal.MoveCalls);
     }
 }

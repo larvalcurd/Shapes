@@ -1,11 +1,7 @@
 ﻿namespace Shapes.Gfx;
 
-public struct Color(byte r, byte g, byte b)
+// record struct дает сравнение по значениям бесплатно
+public readonly record struct Color(byte R, byte G, byte B)
 {
-    public byte R { get; } = r;
-    public byte G { get; } = g;
-    public byte B { get; } = b;
-
-    public override string ToString()
-        => $"#{R:X2}{G:X2}{B:X2}"; 
+    public override string ToString() => $"#{R:X2}{G:X2}{B:X2}";
 }
