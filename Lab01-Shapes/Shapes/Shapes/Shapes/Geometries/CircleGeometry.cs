@@ -1,7 +1,4 @@
-﻿using Shapes.Formatting;
-using Shapes.Gfx;
-
-namespace Shapes.Shapes.Geometries;
+﻿namespace Shapes.Shapes.Geometries;
 
 public class CircleGeometry : IShapeGeometry
 {
@@ -11,8 +8,8 @@ public class CircleGeometry : IShapeGeometry
     public CircleGeometry(double x, double y, double r)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(r);
-        _x = x; 
-        _y = y; 
+        _x = x;
+        _y = y;
         _r = r;
     }
 
@@ -20,7 +17,7 @@ public class CircleGeometry : IShapeGeometry
 
     public void Move(double dx, double dy)
     {
-        _x += dx; 
+        _x += dx;
         _y += dy;
     }
 
@@ -31,7 +28,7 @@ public class CircleGeometry : IShapeGeometry
 
     public string GetParamsString() =>
         $"{NumberFormat.Format(_x)} {NumberFormat.Format(_y)} {NumberFormat.Format(_r)}";
-    
+
     public IShapeGeometry Clone() => new CircleGeometry(_x, _y, _r);
 
     public static CircleGeometry Parse(string raw)
