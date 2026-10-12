@@ -12,7 +12,7 @@ public static class Bootstrap
     {
         var picture = new Picture();
 
-        var canvas = new SvgCanvas(1220, 1200);
+        var canvas = new SvgCanvas(1200, 1200);
         
         var registry = new Registry();
         registry.Register("circle", CircleGeometry.Parse);

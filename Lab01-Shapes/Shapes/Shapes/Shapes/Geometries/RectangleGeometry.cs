@@ -32,6 +32,7 @@ public class RectangleGeometry : IShapeGeometry
         canvas.MoveTo(_left, _top);
         canvas.LineTo(_left + _width, _top);
         canvas.LineTo(_left + _width, _top + _height);
+        //throw new NotImplementedException("Draw method for RectangleGeometry is not fully implemented yet.");
         canvas.LineTo(_left, _top + _height);
         canvas.LineTo(_left, _top);
     }

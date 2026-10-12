@@ -1,0 +1,17 @@
+AddShape house #8B4513 rectangle 300 500 600 400
+AddShape roof #B22222 triangle 250 500 950 500 600 200
+AddShape door #654321 rectangle 540 680 120 220
+AddShape window-left #87CEEB rectangle 380 620 130 120
+AddShape window-right #87CEEB rectangle 690 620 130 120
+AddShape sun #FFD700 circle 1000 180 80
+AddShape trunk #8B4513 rectangle 110 650 90 250
+AddShape tree-crown #228B22 circle 155 570 160
+AddShape ground #2E8B57 line 50 900 1150 900
+AddShape title #1E3A5F text 390 80 42 My little house
+AddShape door-knob #FFD700 circle 635 795 10
+CloneShape window-left window-left-copy
+MoveShape window-left-copy 310 0
+ChangeColor window-left-copy #98FB98
+ChangeShape door rectangle 540 680 120 220
+MovePicture 0 0
+DrawPicture
