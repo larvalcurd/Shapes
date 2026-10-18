@@ -1,39 +1,62 @@
-﻿Lab04.Shapes/
-├── Lab04.Shapes.csproj
-├── Program.cs                          // цикл чтения stdin, точка сборки зависимостей
+Shapes.sln
+├── ShapesApp/                             // Консольное приложение (Composition Root + ввод)
+│   ├── Program.cs                         // цикл чтения stdin
+│   └── Bootstrap.cs                       // сборка графа зависимостей
 │
-├── Shapes/                             // namespace Shapes — доменная модель, БЕЗ ввода-вывода
-│   ├── Shape.cs                        // класс Shape: Id, Color, IShapeGeometry Geometry
-│   ├── IShapeGeometry.cs               // стратегия: Move, Draw, GetParams, TypeName
-│   ├── Picture.cs                      // хранит List<Shape> + Dictionary<string, Shape>
+├── Shapes/                                // Библиотека ядра
+│   ├── Core/                              // Доменная модель, БЕЗ ввода-вывода (namespace Shapes.Core)
+│   │   ├── Shape.cs                       // класс Shape: Id, Color, IShapeGeometry Geometry
+│   │   ├── Picture.cs                     // хранит List<Shape>, реализует IShapeListener
+│   │   ├── IShapeGeometry.cs              // стратегия: Move, Draw, GetParams, TypeName
+│   │   ├── IShapeListener.cs              // интерфейс слушателя фигуры
+│   │   ├── IPictureListener.cs            // интерфейс слушателя картины
+│   │   ├── Registry.cs                    // реестр фабрик геометрий
+│   │   ├── Geometries/                    // конкретные стратегии (namespace Shapes.Core.Geometries)
+│   │   │   ├── CircleGeometry.cs
+│   │   │   ├── RectangleGeometry.cs
+│   │   │   ├── TriangleGeometry.cs
+│   │   │   ├── LineGeometry.cs
+│   │   │   └── TextGeometry.cs
+│   │   └── ShapeFactory/                  // фабрика геометрий (альтернативная реализация)
+│   │       ├── IShapeGeometryFactory.cs
+│   │       └── ShapeGeometryFactory.cs
 │   │
-│   └── Geometries/                     // конкретные стратегии
-│       ├── CircleGeometry.cs
-│       ├── RectangleGeometry.cs
-│       ├── TriangleGeometry.cs
-│       ├── LineGeometry.cs
-│       └── TextGeometry.cs
-│
-├── ShapeFactory/                       // расширяемость живёт здесь
-│   ├── IShapeGeometryFactory.cs
-│   └── ShapeGeometryFactory.cs         // Dictionary<string, Func<string[], IShapeGeometry>>
-│                                        // добавление типа = Register("ellipse", args => new EllipseGeometry(args))
-│
-├── Gfx/                                // namespace Gfx — интерфейс из задания
-│   ├── ICanvas.cs                      // SetColor, MoveTo, LineTo, DrawEllipse, DrawText
+│   ├── Observers/                         // Наблюдатели (namespace Shapes.Observers)
+│   │   └── PictureLogger.cs               // логирование изменений Picture в TextWriter
+│   │
+│   ├── Gfx/                               // Графика (namespace Shapes.Gfx)
+│   │   ├── Canvas.cs                      // интерфейс ICanvas
 │   │   ├── Color.cs
-│   └── SvgCanvas.cs                    // реализация — рисуем в SVG, это проще всего для консоли
+│   │   ├── SvgCanvas.cs                   // реализация ICanvas в SVG
+│   │   └── ConsoleDebugCanvas.cs
+│   │
+│   ├── Commands/                          // Парсинг и диспетчеризация команд (namespace Shapes.Commands)
+│   │   ├── ICommand.cs
+│   │   ├── CommandDispatcher.cs
+│   │   ├── Parsers/
+│   │   └── Handlers/
+│   │       ├── AddShapeCommand.cs
+│   │       ├── MoveShapeCommand.cs
+│   │       ├── MovePictureCommand.cs
+│   │       ├── DeleteShapeCommand.cs
+│   │       ├── CloneShapeCommand.cs
+│   │       ├── ListCommand.cs
+│   │       ├── ChangeColorCommand.cs
+│   │       ├── ChangeShapeCommand.cs
+│   │       ├── DrawShapeCommand.cs
+│   │       └── DrawPictureCommand.cs
+│   │
+│   └── Formatting/
+│       └── NumberFormat.cs
 │
-└── Commands/                           // парсинг и диспетчеризация команд
-    ├── ICommandHandler.cs              // Execute(string[] args, Picture picture, ICanvas canvas)
-    ├── CommandDispatcher.cs            // Dictionary<string, ICommandHandler>, парсит первое слово строки
-    └── Handlers/
-        ├── AddShapeCommand.cs
-        ├── MoveShapeCommand.cs
-        ├── MovePictureCommand.cs
-        ├── DeleteShapeCommand.cs
-        ├── ListCommand.cs
-        ├── ChangeColorCommand.cs
-        ├── ChangeShapeCommand.cs
-        ├── DrawShapeCommand.cs
-        └── DrawPictureCommand.cs
+└── Shapes.Tests/                          // Модульные тесты (xUnit)
+    ├── Mocks/
+    │   ├── FakeCanvas.cs
+    │   ├── FakeGeometry.cs
+    │   ├── FakeShapeListener.cs
+    │   ├── FakePictureListener.cs
+    │   └── OrderCounter.cs
+    ├── ShapeTests.cs
+    ├── ShapeObserverTests.cs
+    ├── PictureTests.cs
+    └── PictureObserverTests.cs

@@ -1,9 +1,9 @@
-﻿using Shapes.Gfx;
-using Shapes.Shapes;
+using Shapes.Gfx;
+using Shapes.Core;
 
 namespace Shapes.Tests.Mocks;
 
-public class FakeGeometry(OrderCounter? orderCounter = null) : IShapeGeometry
+public class FakeGeometry(OrderCounter? orderCounter = null, string paramsString = "") : IShapeGeometry
 {
     private readonly List<(double Dx, double Dy)> _moveCalls = [];
 
@@ -32,13 +32,13 @@ public class FakeGeometry(OrderCounter? orderCounter = null) : IShapeGeometry
         LastCanvas = canvas;
     }
 
-    public string GetParamsString() => throw new NotImplementedException();
+    public string GetParamsString() => paramsString;
 
     public IShapeGeometry Clone()
     {
         CloneCallCount++;
         
-        var clone = new FakeGeometry(orderCounter);
+        var clone = new FakeGeometry(orderCounter, paramsString);
         LastClonedResult = clone;
 
         return LastClonedResult;

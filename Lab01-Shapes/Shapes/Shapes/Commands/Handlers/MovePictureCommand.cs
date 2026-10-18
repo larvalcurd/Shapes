@@ -1,5 +1,5 @@
-﻿using Shapes.Formatting;
-using Shapes.Shapes;
+using Shapes.Formatting;
+using Shapes.Core;
 
 namespace Shapes.Commands.Handlers;
 

@@ -1,4 +1,4 @@
-﻿namespace Shapes.Shapes;
+namespace Shapes.Core;
 
 public class Registry
 {

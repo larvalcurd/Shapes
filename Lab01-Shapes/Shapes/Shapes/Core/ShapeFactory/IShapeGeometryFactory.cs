@@ -1,4 +1,4 @@
-﻿namespace Shapes.Shapes.ShapeFactory;
+namespace Shapes.Core.ShapeFactory;
 
 public interface IShapeGeometryFactory
 {

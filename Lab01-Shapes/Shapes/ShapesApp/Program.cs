@@ -9,14 +9,14 @@ public static class Program
             Console.WriteLine("Usage: Shapes <output.svg>");
             return;
         }
-        
+
         var (dispatcher, canvas) = Bootstrap.Create();
-        
+
         while (Console.ReadLine() is { } line)
         {
             dispatcher.Dispatch(line);
         }
-        
+
         canvas.Save(args[0]);
         Console.WriteLine($"Saved to {args[0]}");
     }

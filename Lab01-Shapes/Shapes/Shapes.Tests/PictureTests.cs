@@ -1,6 +1,6 @@
-﻿using Shapes.Gfx;
-using Shapes.Shapes;
-using Shapes.Shapes.Geometries;
+using Shapes.Gfx;
+using Shapes.Core;
+using Shapes.Core.Geometries;
 
 namespace Shapes.Tests;
 

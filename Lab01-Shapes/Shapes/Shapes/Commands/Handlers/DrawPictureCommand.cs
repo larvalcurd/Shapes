@@ -1,5 +1,5 @@
-﻿using Shapes.Gfx;
-using Shapes.Shapes;
+using Shapes.Gfx;
+using Shapes.Core;
 
 namespace Shapes.Commands.Handlers;
 

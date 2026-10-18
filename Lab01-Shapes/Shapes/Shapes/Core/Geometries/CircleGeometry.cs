@@ -1,4 +1,9 @@
-﻿namespace Shapes.Shapes.Geometries;
+using Shapes.Formatting;
+using Shapes.Gfx;
+
+using Shapes.Core;
+
+namespace Shapes.Core.Geometries;
 
 public class CircleGeometry : IShapeGeometry
 {

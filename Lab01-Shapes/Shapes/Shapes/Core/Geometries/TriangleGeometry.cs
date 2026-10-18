@@ -1,7 +1,9 @@
-﻿using Shapes.Formatting;
+using Shapes.Formatting;
 using Shapes.Gfx;
 
-namespace Shapes.Shapes.Geometries;
+using Shapes.Core;
+
+namespace Shapes.Core.Geometries;
 
 public class TriangleGeometry : IShapeGeometry
 {
