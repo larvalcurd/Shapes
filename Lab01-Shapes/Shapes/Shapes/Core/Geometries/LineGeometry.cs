@@ -1,8 +1,6 @@
 using Shapes.Formatting;
 using Shapes.Gfx;
 
-using Shapes.Core;
-
 namespace Shapes.Core.Geometries;
 
 public class LineGeometry : IShapeGeometry
@@ -10,7 +8,7 @@ public class LineGeometry : IShapeGeometry
     private double _x1, _y1, _x2, _y2;
 
     public LineGeometry(double x1, double y1, double x2, double y2)
-    {   
+    {
         _x1 = x1;
         _y1 = y1;
         _x2 = x2;
@@ -18,6 +16,7 @@ public class LineGeometry : IShapeGeometry
     }
 
     public string TypeName => "line";
+
     public void Move(double dx, double dy)
     {
         _x1 += dx;
@@ -35,12 +34,12 @@ public class LineGeometry : IShapeGeometry
     public string GetParamsString() =>
         $"{NumberFormat.Format(_x1)} {NumberFormat.Format(_y1)} " +
         $"{NumberFormat.Format(_x2)} {NumberFormat.Format(_y2)}";
-    
+
     public IShapeGeometry Clone() => new LineGeometry(_x1, _y1, _x2, _y2);
-    
+
     public static LineGeometry Parse(string raw)
     {
-        var p = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        string[] p = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return new LineGeometry(
             NumberFormat.Parse(p[0]), NumberFormat.Parse(p[1]),
             NumberFormat.Parse(p[2]), NumberFormat.Parse(p[3]));

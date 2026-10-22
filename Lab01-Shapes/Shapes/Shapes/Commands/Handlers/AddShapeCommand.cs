@@ -1,5 +1,6 @@
 using Shapes.Commands.Parsers;
 using Shapes.Core;
+using Shapes.Gfx;
 
 namespace Shapes.Commands.Handlers;
 
@@ -10,23 +11,24 @@ public class AddShapeCommand(Picture picture, Registry registry) : ICommand
 
     public string Execute(string args)
     {
-        var tokens = args.Split([' '], 4, StringSplitOptions.RemoveEmptyEntries);
+        string[] tokens = args.Split([' '], 4, StringSplitOptions.RemoveEmptyEntries);
 
         if (tokens.Length < 4)
         {
-            throw new ArgumentException("Command 'AddShape' requires at least 4 arguments: id, color, type, and parameters.");
+            throw new ArgumentException(
+                "Command 'AddShape' requires at least 4 arguments: id, color, type, and parameters.");
         }
 
-        var id = tokens[0];
-        var colorRaw = tokens[1];
-        var type = tokens[2];
-        var paramsString = tokens[3];
+        string id = tokens[0];
+        string colorRaw = tokens[1];
+        string type = tokens[2];
+        string paramsString = tokens[3];
 
-        var color = ColorParser.Parse(colorRaw);
+        Color color = ColorParser.Parse(colorRaw);
 
-        var geometry = _registry.Create(type, paramsString);
+        IShapeGeometry geometry = _registry.Create(type, paramsString);
 
-        var shape = new Shape(id, color, geometry);
+        Shape shape = new(id, color, geometry);
 
         _picture.AddShape(shape);
         return $"Added {type} '{id}' with parameters: {paramsString}";

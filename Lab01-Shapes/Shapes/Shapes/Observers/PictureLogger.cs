@@ -21,8 +21,8 @@ public class PictureLogger(TextWriter output) : IPictureListener
 
         foreach (var shape in shapes)
         {
-            var paramsString = shape.GetParamsString();
-            var line = string.IsNullOrWhiteSpace(paramsString)
+            string paramsString = shape.GetParamsString();
+            string line = string.IsNullOrWhiteSpace(paramsString)
                 ? $"  {shape.Id} {shape.GetTypeName()} {shape.Color}"
                 : $"  {shape.Id} {shape.GetTypeName()} {shape.Color} {paramsString}";
 

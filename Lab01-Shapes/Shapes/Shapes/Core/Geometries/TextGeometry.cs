@@ -1,15 +1,13 @@
 using Shapes.Formatting;
 using Shapes.Gfx;
 
-using Shapes.Core;
-
 namespace Shapes.Core.Geometries;
 
 public class TextGeometry : IShapeGeometry
 {
-    private double _left, _top;
     private readonly double _fontSize;
     private readonly string _text;
+    private double _left, _top;
 
     public TextGeometry(double left, double top, double fontSize, string text)
     {
@@ -30,10 +28,7 @@ public class TextGeometry : IShapeGeometry
         _top += dy;
     }
 
-    public void Draw(ICanvas canvas)
-    {
-        canvas.DrawText(_left, _top, _fontSize, _text);
-    }
+    public void Draw(ICanvas canvas) => canvas.DrawText(_left, _top, _fontSize, _text);
 
     public string GetParamsString() =>
         $"{NumberFormat.Format(_left)} {NumberFormat.Format(_top)} {NumberFormat.Format(_fontSize)} {_text}";
@@ -42,16 +37,19 @@ public class TextGeometry : IShapeGeometry
 
     public static TextGeometry Parse(string raw)
     {
-        var p = raw.Split(' ', 4, StringSplitOptions.RemoveEmptyEntries);
+        string[] p = raw.Split(' ', 4, StringSplitOptions.RemoveEmptyEntries);
 
         // Защита от недостаточного количества аргументов (нужно минимум left, top, fontSize)
         if (p.Length < 3)
-            throw new ArgumentException("Invalid number of arguments for TextGeometry. Expected at least 3 parameters.");
+        {
+            throw new ArgumentException(
+                "Invalid number of arguments for TextGeometry. Expected at least 3 parameters.");
+        }
 
-        var left = NumberFormat.Parse(p[0]);
-        var top = NumberFormat.Parse(p[1]);
-        var fontSize = NumberFormat.Parse(p[2]);
-        var text = p.Length > 3 ? p[3] : "";
+        double left = NumberFormat.Parse(p[0]);
+        double top = NumberFormat.Parse(p[1]);
+        double fontSize = NumberFormat.Parse(p[2]);
+        string text = p.Length > 3 ? p[3] : "";
 
         return new TextGeometry(left, top, fontSize, text);
     }

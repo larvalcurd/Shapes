@@ -1,16 +1,16 @@
-using Shapes.Gfx;
 using Shapes.Core;
+using Shapes.Gfx;
 
 namespace Shapes.Commands.Handlers;
 
 public class DrawPictureCommand(Picture picture, ICanvas canvas) : ICommand
 {
-    private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
     private readonly ICanvas _canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
+    private readonly Picture _picture = picture ?? throw new ArgumentNullException(nameof(picture));
 
     public string Execute(string args)
     {
-        var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
+        string[] tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
 
         if (tokens.Length > 0)
         {
@@ -18,10 +18,9 @@ public class DrawPictureCommand(Picture picture, ICanvas canvas) : ICommand
         }
 
 
-        
         _picture.DrawPicture(_canvas);
-        var count = _picture.GetShapes().Count; 
-        var shapeWord = count == 1 ? "shape" : "shapes";
+        int count = _picture.GetShapes().Count;
+        string shapeWord = count == 1 ? "shape" : "shapes";
         return $"Drew picture with {count} shapes";
     }
 }

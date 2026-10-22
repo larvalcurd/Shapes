@@ -70,7 +70,7 @@ public class SvgCanvas(double width, double height) : ICanvas
             $"height=\"{NumberFormat.Format(_height)}\" " +
             $"viewBox=\"0 0 {NumberFormat.Format(_width)} {NumberFormat.Format(_height)}\">");
 
-        foreach (var element in _elements)
+        foreach (string element in _elements)
             sb.AppendLine(element);
 
         sb.AppendLine("</svg>");

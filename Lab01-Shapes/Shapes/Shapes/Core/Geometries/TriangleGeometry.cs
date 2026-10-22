@@ -1,8 +1,6 @@
 using Shapes.Formatting;
 using Shapes.Gfx;
 
-using Shapes.Core;
-
 namespace Shapes.Core.Geometries;
 
 public class TriangleGeometry : IShapeGeometry
@@ -55,7 +53,7 @@ public class TriangleGeometry : IShapeGeometry
 
     public static TriangleGeometry Parse(string raw)
     {
-        var p = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        string[] p = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         return new TriangleGeometry(
             NumberFormat.Parse(p[0]),

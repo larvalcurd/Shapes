@@ -1,14 +1,12 @@
 using Shapes.Formatting;
 using Shapes.Gfx;
 
-using Shapes.Core;
-
 namespace Shapes.Core.Geometries;
 
 public class RectangleGeometry : IShapeGeometry
 {
+    private readonly double _width, _height;
     private double _left, _top;
-    private readonly double _width, _height; 
 
     public RectangleGeometry(double left, double top, double width, double height)
     {
@@ -48,7 +46,7 @@ public class RectangleGeometry : IShapeGeometry
 
     public static RectangleGeometry Parse(string raw)
     {
-        var p = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        string[] p = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         return new RectangleGeometry(
             NumberFormat.Parse(p[0]),

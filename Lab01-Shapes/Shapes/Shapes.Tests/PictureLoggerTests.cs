@@ -17,7 +17,7 @@ public class PictureLoggerTests
 
         picture.AddShape(new Shape("sh1", new Color(255, 0, 0), new FakeGeometry(paramsString: "10 20")));
 
-        var output = sw.ToString();
+        string output = sw.ToString();
 
         Assert.Contains("Picture changed:", output);
         Assert.Contains("sh1", output);
@@ -34,7 +34,7 @@ public class PictureLoggerTests
 
         logger.OnPictureChanged(picture);
 
-        var output = sw.ToString();
+        string output = sw.ToString();
 
         Assert.Contains("Picture changed:", output);
         Assert.Contains("Picture is empty", output);
@@ -52,7 +52,7 @@ public class PictureLoggerTests
         picture.AddListener(logger);
         picture.DeleteShape("sh1");
 
-        var output = sw.ToString();
+        string output = sw.ToString();
 
         Assert.Contains("Picture changed:", output);
         Assert.Contains("Picture is empty", output);

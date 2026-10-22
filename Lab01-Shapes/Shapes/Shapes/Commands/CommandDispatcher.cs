@@ -18,11 +18,11 @@ public class CommandDispatcher(TextWriter output)
     {
         if (string.IsNullOrWhiteSpace(line)) return;
 
-        var spaceIndex = line.IndexOf(' ');
+        int spaceIndex = line.IndexOf(' ');
 
-        var commandName = spaceIndex < 0 ? line : line[..spaceIndex];
+        string commandName = spaceIndex < 0 ? line : line[..spaceIndex];
 
-        var rest = spaceIndex < 0 ? "" : line[(spaceIndex + 1)..];
+        string rest = spaceIndex < 0 ? "" : line[(spaceIndex + 1)..];
 
         if (!_commands.TryGetValue(commandName, out var command))
         {
@@ -32,16 +32,16 @@ public class CommandDispatcher(TextWriter output)
 
         try
         {
-            var result = command.Execute(rest);
+            string result = command.Execute(rest);
 
             if (!string.IsNullOrEmpty(result))
             {
                 _output.WriteLine(result);
             }
         }
-        catch (Exception ex)when (ex is ArgumentException 
-                                      or InvalidOperationException 
-                                      or FormatException 
+        catch (Exception ex)when (ex is ArgumentException
+                                      or InvalidOperationException
+                                      or FormatException
                                       or OverflowException)
         {
             _output.WriteLine($"Error: {ex.Message}");

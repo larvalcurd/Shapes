@@ -137,4 +137,142 @@ public class PictureObserverTests
         picture.AddShape(shape2);
         Assert.Equal(1, listener.CallCount);
     }
+
+    [Fact]
+    public void Listener_RemovesItself_DuringNotification_DoesNotThrow()
+    {
+        var picture = new Picture();
+        var selfRemoving = new SelfRemovingPictureListener();
+        picture.AddListener(selfRemoving);
+
+        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+
+        var exception = Record.Exception(() => picture.AddShape(shape));
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void Picture_Disposed_SubscriptionDisposeDoesNotThrow()
+    {
+        var picture = new Picture();
+        var logger = new FakePictureListener();
+        var subscription = picture.Subscribe(logger);
+
+        picture.Dispose();
+
+        var exception = Record.Exception(() => subscription.Dispose());
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void Subscription_Active_ListenerNotified()
+    {
+        var picture = new Picture();
+        var listener = new FakePictureListener();
+
+        using var subscription = picture.Subscribe(listener);
+
+        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        picture.AddShape(shape);
+
+        Assert.Equal(1, listener.CallCount);
+    }
+
+    [Fact]
+    public void Subscription_Disposed_ListenerNotNotified()
+    {
+        var picture = new Picture();
+        var listener = new FakePictureListener();
+
+        var subscription = picture.Subscribe(listener);
+
+        var shape1 = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        picture.AddShape(shape1);
+
+        Assert.Equal(1, listener.CallCount);
+
+        subscription.Dispose();
+
+        var shape2 = new Shape("sh2", new Color(0, 255, 0), new FakeGeometry());
+        picture.AddShape(shape2);
+
+        Assert.Equal(1, listener.CallCount);
+    }
+
+    [Fact]
+    public void Subscription_DisposedTwice_DoesNotThrow()
+    {
+        var picture = new Picture();
+        var listener = new FakePictureListener();
+
+        var subscription = picture.Subscribe(listener);
+
+        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        picture.AddShape(shape);
+
+        Assert.Equal(1, listener.CallCount);
+
+        subscription.Dispose();
+
+
+        var exception = Record.Exception(() => subscription.Dispose());
+
+        Assert.Null(exception);
+    }
+
+
+    [Fact]
+    public void Subscription_Take_FirstDisposeNoOp_SecondOwns()
+    {
+        var picture = new Picture();
+        var listener = new FakePictureListener();
+
+        var subscription = picture.Subscribe(listener);
+        var newSubscription = subscription.Take();
+
+        subscription.Dispose();
+
+        var shape1 = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        picture.AddShape(shape1);
+
+        Assert.Equal(1, listener.CallCount);
+
+        newSubscription.Dispose();
+
+        var shape2 = new Shape("sh2", new Color(0, 255, 0), new FakeGeometry());
+        picture.AddShape(shape2);
+
+        Assert.Equal(1, listener.CallCount);
+    }
+
+    [Fact]
+    public void Subscription_DoesNotKeepPictureAlive()
+    {
+        var listener = new FakePictureListener();
+
+        (WeakReference<Picture> pictureReference, Subscription subscription) = CreateDisposedPictureWithSubscription(listener);
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        Assert.False(pictureReference.TryGetTarget(out _));
+
+        subscription.Dispose();
+    }
+
+    private static (
+        WeakReference<Picture> PictureReference,
+        Subscription Subscription)
+        CreateDisposedPictureWithSubscription(FakePictureListener listener)
+    {
+        var picture = new Picture();
+        var subscription = picture.Subscribe(listener);
+        var pictureReference = new WeakReference<Picture>(picture);
+
+        picture.Dispose();
+
+        return (pictureReference, subscription);
+    }
 }

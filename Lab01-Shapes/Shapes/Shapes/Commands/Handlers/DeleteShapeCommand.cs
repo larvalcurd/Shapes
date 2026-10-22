@@ -8,14 +8,14 @@ public class DeleteShapeCommand(Picture picture) : ICommand
 
     public string Execute(string args)
     {
-        var tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
+        string[] tokens = args.Split([' '], StringSplitOptions.RemoveEmptyEntries);
 
         if (tokens.Length != 1)
         {
             throw new ArgumentException("Command 'DeleteShape' requires exactly 1 argument: id.");
         }
 
-        var id = tokens[0];
+        string id = tokens[0];
 
         _picture.DeleteShape(id);
         return $"Deleted shape '{id}'";

@@ -2,20 +2,51 @@ using Shapes.Gfx;
 
 namespace Shapes.Core;
 
-public class Picture : IShapeListener
+public class Picture : IShapeListener, IDisposable
 {
     private readonly List<Shape> _shapes = [];
 
-    private readonly List<IPictureListener> _pictureListeners = [];
+    private readonly ListenerList<IPictureListener> _listeners;
+    
+    private bool _disposed;
+
+    public Subscription Subscribe(IPictureListener listener)
+    {
+        return _listeners.Subscribe(listener);
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+            
+        _disposed = true;
+        
+        foreach (var shape in _shapes) shape.RemoveListener(this);
+        
+        _shapes.Clear();
+        _listeners.Dispose();
+    }
+
+    public Picture()
+    {
+        _listeners = new ListenerList<IPictureListener>(
+            listener => listener.OnPictureChanged(this)
+        );
+    }
 
     public void AddShape(Shape shape)
     {
         if (GetShape(shape.Id) != null)
-            throw new InvalidOperationException($"Shape with id '{shape.Id}' already exists.");
+        {
+            throw new InvalidOperationException(
+                $"Shape with id '{shape.Id}' already exists."
+            );
+        }
 
         _shapes.Add(shape);
         shape.AddListener(this);
-        NotifyListeners();
+
+        _listeners.Notify();
     }
 
     public Shape? GetShape(string id)
@@ -25,56 +56,70 @@ public class Picture : IShapeListener
 
     public void DeleteShape(string id)
     {
-        var shape = GetShape(id) ?? throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
-        
+        Shape? shape = GetShape(id);
+
+        if (shape == null)
+        {
+            throw new InvalidOperationException(
+                $"Shape with id '{id}' does not exist."
+            );
+        }
+
         shape.RemoveListener(this);
         _shapes.Remove(shape);
-        NotifyListeners();
+
+        _listeners.Notify();
     }
 
     public void CloneShape(string id, string newId)
     {
-        var shape = GetShape(id) ?? throw new InvalidOperationException($"Shape with id '{id}' does not exist.");
-        AddShape(shape.Clone(newId));
+        Shape? shape = GetShape(id);
+
+        if (shape == null)
+        {
+            throw new InvalidOperationException(
+                $"Shape with id '{id}' does not exist."
+            );
+        }
+
+        Shape newShape = shape.Clone(newId);
+
+        AddShape(newShape);
     }
 
-    public IReadOnlyList<Shape> GetShapes() => [.. _shapes];
+    public IReadOnlyList<Shape> GetShapes()
+    {
+        return [.. _shapes];
+    }
 
     public void MovePicture(double dx, double dy)
     {
-        foreach (var shape in _shapes)
+        foreach (Shape shape in _shapes)
+        {
             shape.Move(dx, dy);
+        }
     }
 
     public void DrawPicture(ICanvas canvas)
     {
-        foreach (var shape in _shapes)
+        foreach (Shape shape in _shapes)
+        {
             shape.Draw(canvas);
+        }
     }
 
     public void AddListener(IPictureListener listener)
     {
-        if (!_pictureListeners.Contains(listener))
-        {
-            _pictureListeners.Add(listener);
-        }
+        _listeners.Add(listener);
     }
 
     public void RemoveListener(IPictureListener listener)
     {
-        _pictureListeners.Remove(listener);
+        _listeners.Remove(listener);
     }
 
-    private void NotifyListeners()
-    {
-        foreach (var listener in _pictureListeners)
-        {
-            listener.OnPictureChanged(this);
-        }
-    }
-    
     public void OnShapeChanged(Shape shape)
     {
-        NotifyListeners();
+        _listeners.Notify();
     }
 }

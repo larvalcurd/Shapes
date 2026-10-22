@@ -1,14 +1,12 @@
 using Shapes.Formatting;
 using Shapes.Gfx;
 
-using Shapes.Core;
-
 namespace Shapes.Core.Geometries;
 
 public class CircleGeometry : IShapeGeometry
 {
-    private double _x, _y;
     private readonly double _r;
+    private double _x, _y;
 
     public CircleGeometry(double x, double y, double r)
     {
@@ -26,10 +24,7 @@ public class CircleGeometry : IShapeGeometry
         _y += dy;
     }
 
-    public void Draw(ICanvas canvas)
-    {
-        canvas.DrawEllipse(_x, _y, _r, _r);
-    }
+    public void Draw(ICanvas canvas) => canvas.DrawEllipse(_x, _y, _r, _r);
 
     public string GetParamsString() =>
         $"{NumberFormat.Format(_x)} {NumberFormat.Format(_y)} {NumberFormat.Format(_r)}";
@@ -38,7 +33,7 @@ public class CircleGeometry : IShapeGeometry
 
     public static CircleGeometry Parse(string raw)
     {
-        var p = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        string[] p = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return new CircleGeometry(
             NumberFormat.Parse(p[0]),
             NumberFormat.Parse(p[1]),

@@ -2,11 +2,27 @@ using Shapes.Gfx;
 
 namespace Shapes.Core;
 
-public class Shape(string id, Color color, IShapeGeometry geometry)
+public class Shape : IDisposable
 {
-    public string Id { get; } = id;
+    public string Id { get; }
 
-    private Color _color = color;
+    private Color _color;
+    // todo: провести аналогию с ptr в c++, разобраться, какой тип владения геометрией
+    // это управляемая ссылка, этим занимается GC, аналог в с++ - это unique_ptr, который владеет объектом и уничтожает его при удалении
+    private IShapeGeometry _geometry;
+    
+    
+    private readonly ListenerList<IShapeListener> _listeners;
+    
+    public Shape(string id, Color color, IShapeGeometry geometry)
+    {
+        Id = id;
+        _color = color;
+        _geometry = geometry;
+        _listeners = new ListenerList<IShapeListener>(
+            listener => listener.OnShapeChanged(this)
+        );
+    }
 
     public Color Color
     {
@@ -14,20 +30,14 @@ public class Shape(string id, Color color, IShapeGeometry geometry)
         set
         {
             _color = value;
-            NotifyListeners();
+            _listeners.Notify();
         }
     }
     
-    private readonly List<IShapeListener> _listeners = [];
-    
-    // todo: провести аналогию с ptr в c++, разобраться, какой тип владения геометрией
-    // это управляемая ссылка, этим занимается GC, аналог в с++ - это unique_ptr, который владеет объектом и уничтожает его при удалении
-    private IShapeGeometry _geometry = geometry;
-
     public void Move(double dx, double dy)
     {
         _geometry.Move(dx, dy);
-        NotifyListeners();
+        _listeners.Notify();
     }
 
     public void Draw(ICanvas canvas)
@@ -39,7 +49,7 @@ public class Shape(string id, Color color, IShapeGeometry geometry)
     public void ReplaceGeometry(IShapeGeometry newGeometry)
     {
         _geometry = newGeometry;
-        NotifyListeners();
+        _listeners.Notify();
     }
 
     public string GetTypeName() => _geometry.TypeName;
@@ -48,24 +58,18 @@ public class Shape(string id, Color color, IShapeGeometry geometry)
     // TODO: паттерн "прототип"
     public Shape Clone(string newId) => new Shape(newId, Color, _geometry.Clone());
 
-    public void AddListener(IShapeListener listener)
+    public void AddListener(IShapeListener listener) => _listeners.Add(listener);
+
+    public void RemoveListener(IShapeListener listener) => _listeners.Remove(listener);
+
+    public Subscription Subscribe(IShapeListener listener)
     {
-        if (!_listeners.Contains(listener))
-        {
-            _listeners.Add(listener);
-        }
+        return _listeners.Subscribe(listener);
+    }
+    
+    public void Dispose()
+    {
+        _listeners.Dispose();
     }
 
-    public void RemoveListener(IShapeListener listener)
-    {
-        _listeners.Remove(listener);
-    }
-
-    private void NotifyListeners()
-    {
-        foreach (var listener in _listeners)
-        {
-            listener.OnShapeChanged(this);
-        }
-    }
 }

@@ -1,4 +1,7 @@
-﻿namespace ShapesApp;
+﻿using Shapes.Commands;
+using Shapes.Gfx;
+
+namespace ShapesApp;
 
 public static class Program
 {
@@ -10,7 +13,7 @@ public static class Program
             return;
         }
 
-        var (dispatcher, canvas) = Bootstrap.Create();
+        (CommandDispatcher dispatcher, SvgCanvas canvas) = Bootstrap.Create();
 
         while (Console.ReadLine() is { } line)
         {
