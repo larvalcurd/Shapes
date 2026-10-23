@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+<line x1="300" y1="500" x2="900" y2="500" stroke="#8B4513" />
+<line x1="900" y1="500" x2="900" y2="900" stroke="#8B4513" />
+<line x1="900" y1="900" x2="300" y2="900" stroke="#8B4513" />
+<line x1="300" y1="900" x2="300" y2="500" stroke="#8B4513" />
+<line x1="250" y1="500" x2="950" y2="500" stroke="#B22222" />
+<line x1="950" y1="500" x2="600" y2="200" stroke="#B22222" />
+<line x1="600" y1="200" x2="250" y2="500" stroke="#B22222" />
+<line x1="540" y1="680" x2="660" y2="680" stroke="#654321" />
+<line x1="660" y1="680" x2="660" y2="900" stroke="#654321" />
+<line x1="660" y1="900" x2="540" y2="900" stroke="#654321" />
+<line x1="540" y1="900" x2="540" y2="680" stroke="#654321" />
+<line x1="380" y1="620" x2="510" y2="620" stroke="#87CEEB" />
+<line x1="510" y1="620" x2="510" y2="740" stroke="#87CEEB" />
+<line x1="510" y1="740" x2="380" y2="740" stroke="#87CEEB" />
+<line x1="380" y1="740" x2="380" y2="620" stroke="#87CEEB" />
+<line x1="690" y1="620" x2="820" y2="620" stroke="#87CEEB" />
+<line x1="820" y1="620" x2="820" y2="740" stroke="#87CEEB" />
+<line x1="820" y1="740" x2="690" y2="740" stroke="#87CEEB" />
+<line x1="690" y1="740" x2="690" y2="620" stroke="#87CEEB" />
+<ellipse cx="1000" cy="180" rx="80" ry="80" fill="#FFD700" />
+<line x1="110" y1="650" x2="200" y2="650" stroke="#8B4513" />
+<line x1="200" y1="650" x2="200" y2="900" stroke="#8B4513" />
+<line x1="200" y1="900" x2="110" y2="900" stroke="#8B4513" />
+<line x1="110" y1="900" x2="110" y2="650" stroke="#8B4513" />
+<ellipse cx="155" cy="570" rx="160" ry="160" fill="#228B22" />
+<line x1="50" y1="900" x2="1150" y2="900" stroke="#2E8B57" />
+<text x="390" y="80" font-size="42" dominant-baseline="hanging" fill="#1E3A5F">My little house</text>
+<ellipse cx="635" cy="795" rx="10" ry="10" fill="#FFD700" />
+<line x1="690" y1="620" x2="820" y2="620" stroke="#98FB98" />
+<line x1="820" y1="620" x2="820" y2="740" stroke="#98FB98" />
+<line x1="820" y1="740" x2="690" y2="740" stroke="#98FB98" />
+<line x1="690" y1="740" x2="690" y2="620" stroke="#98FB98" />
+</svg>

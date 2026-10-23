@@ -1,5 +1,5 @@
-using Shapes.Gfx;
 using Shapes.Core;
+using Shapes.Gfx;
 using Shapes.Tests.Mocks;
 
 namespace Shapes.Tests;
@@ -9,11 +9,11 @@ public class PictureObserverTests
     [Fact]
     public void AddShape_NotifiesExternalListeners()
     {
-        var picture = new Picture();
-        var listener = new FakePictureListener();
+        Picture picture = new();
+        FakePictureListener listener = new();
         picture.AddListener(listener);
 
-        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Shape shape = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shape);
 
         Assert.Equal(1, listener.CallCount);
@@ -23,14 +23,14 @@ public class PictureObserverTests
     [Fact]
     public void MoveShape_DirectReference_NotifiesPictureListeners()
     {
-        var picture = new Picture();
-        var shapeToAdd = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Picture picture = new();
+        Shape shapeToAdd = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shapeToAdd);
 
-        var listener = new FakePictureListener();
+        FakePictureListener listener = new();
         picture.AddListener(listener);
 
-        var shape = picture.GetShape("sh1")!;
+        Shape shape = picture.GetShape("sh1")!;
         shape.Move(10, 0);
 
         Assert.Equal(1, listener.CallCount);
@@ -40,13 +40,13 @@ public class PictureObserverTests
     [Fact]
     public void AddListener_Twice_DoesNotDuplicateNotifications()
     {
-        var picture = new Picture();
-        var listener = new FakePictureListener();
+        Picture picture = new();
+        FakePictureListener listener = new();
 
         picture.AddListener(listener);
         picture.AddListener(listener);
 
-        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Shape shape = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shape);
 
         Assert.Equal(1, listener.CallCount);
@@ -55,14 +55,14 @@ public class PictureObserverTests
     [Fact]
     public void FailedOperation_DoesNotNotifyListeners()
     {
-        var picture = new Picture();
-        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Picture picture = new();
+        Shape shape = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shape);
 
-        var listener = new FakePictureListener();
+        FakePictureListener listener = new();
         picture.AddListener(listener);
 
-        var duplicateShape = new Shape("sh1", new Color(0, 255, 0), new FakeGeometry());
+        Shape duplicateShape = new("sh1", new Color(0, 255, 0), new FakeGeometry());
         Assert.Throws<InvalidOperationException>(() => picture.AddShape(duplicateShape));
 
         Assert.Equal(0, listener.CallCount);
@@ -71,11 +71,11 @@ public class PictureObserverTests
     [Fact]
     public void DeleteShape_NotifiesExternalListeners()
     {
-        var picture = new Picture();
-        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Picture picture = new();
+        Shape shape = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shape);
 
-        var listener = new FakePictureListener();
+        FakePictureListener listener = new();
         picture.AddListener(listener);
 
         picture.DeleteShape("sh1");
@@ -87,13 +87,13 @@ public class PictureObserverTests
     [Fact]
     public void DeleteShape_UnsubscribesFromShape_DirectMoveDoesNotNotify()
     {
-        var picture = new Picture();
-        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Picture picture = new();
+        Shape shape = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shape);
 
         picture.DeleteShape("sh1");
 
-        var listener = new FakePictureListener();
+        FakePictureListener listener = new();
         picture.AddListener(listener);
 
         shape.Move(10, 0);
@@ -104,14 +104,14 @@ public class PictureObserverTests
     [Fact]
     public void MultipleListeners_AllReceiveNotifications()
     {
-        var picture = new Picture();
-        var listener1 = new FakePictureListener();
-        var listener2 = new FakePictureListener();
+        Picture picture = new();
+        FakePictureListener listener1 = new();
+        FakePictureListener listener2 = new();
 
         picture.AddListener(listener1);
         picture.AddListener(listener2);
 
-        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Shape shape = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shape);
 
         Assert.Equal(1, listener1.CallCount);
@@ -123,17 +123,17 @@ public class PictureObserverTests
     [Fact]
     public void RemoveListener_StopsReceivingNotifications()
     {
-        var picture = new Picture();
-        var listener = new FakePictureListener();
+        Picture picture = new();
+        FakePictureListener listener = new();
         picture.AddListener(listener);
 
-        var shape1 = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Shape shape1 = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shape1);
         Assert.Equal(1, listener.CallCount);
 
         picture.RemoveListener(listener);
 
-        var shape2 = new Shape("sh2", new Color(0, 255, 0), new FakeGeometry());
+        Shape shape2 = new("sh2", new Color(0, 255, 0), new FakeGeometry());
         picture.AddShape(shape2);
         Assert.Equal(1, listener.CallCount);
     }
@@ -141,13 +141,13 @@ public class PictureObserverTests
     [Fact]
     public void Listener_RemovesItself_DuringNotification_DoesNotThrow()
     {
-        var picture = new Picture();
-        var selfRemoving = new SelfRemovingPictureListener();
+        Picture picture = new();
+        SelfRemovingPictureListener selfRemoving = new();
         picture.AddListener(selfRemoving);
 
-        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Shape shape = new("sh1", new Color(255, 0, 0), new FakeGeometry());
 
-        var exception = Record.Exception(() => picture.AddShape(shape));
+        Exception? exception = Record.Exception(() => picture.AddShape(shape));
 
         Assert.Null(exception);
     }
@@ -155,25 +155,25 @@ public class PictureObserverTests
     [Fact]
     public void Picture_Disposed_SubscriptionDisposeDoesNotThrow()
     {
-        var picture = new Picture();
-        var logger = new FakePictureListener();
-        var subscription = picture.Subscribe(logger);
+        Picture picture = new();
+        FakePictureListener logger = new();
+        Subscription subscription = picture.Subscribe(logger);
 
         picture.Dispose();
 
-        var exception = Record.Exception(() => subscription.Dispose());
+        Exception? exception = Record.Exception(() => subscription.Dispose());
         Assert.Null(exception);
     }
 
     [Fact]
     public void Subscription_Active_ListenerNotified()
     {
-        var picture = new Picture();
-        var listener = new FakePictureListener();
+        Picture picture = new();
+        FakePictureListener listener = new();
 
-        using var subscription = picture.Subscribe(listener);
+        using Subscription subscription = picture.Subscribe(listener);
 
-        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Shape shape = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shape);
 
         Assert.Equal(1, listener.CallCount);
@@ -182,19 +182,19 @@ public class PictureObserverTests
     [Fact]
     public void Subscription_Disposed_ListenerNotNotified()
     {
-        var picture = new Picture();
-        var listener = new FakePictureListener();
+        Picture picture = new();
+        FakePictureListener listener = new();
 
-        var subscription = picture.Subscribe(listener);
+        Subscription subscription = picture.Subscribe(listener);
 
-        var shape1 = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Shape shape1 = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shape1);
 
         Assert.Equal(1, listener.CallCount);
 
         subscription.Dispose();
 
-        var shape2 = new Shape("sh2", new Color(0, 255, 0), new FakeGeometry());
+        Shape shape2 = new("sh2", new Color(0, 255, 0), new FakeGeometry());
         picture.AddShape(shape2);
 
         Assert.Equal(1, listener.CallCount);
@@ -203,12 +203,12 @@ public class PictureObserverTests
     [Fact]
     public void Subscription_DisposedTwice_DoesNotThrow()
     {
-        var picture = new Picture();
-        var listener = new FakePictureListener();
+        Picture picture = new();
+        FakePictureListener listener = new();
 
-        var subscription = picture.Subscribe(listener);
+        Subscription subscription = picture.Subscribe(listener);
 
-        var shape = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Shape shape = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shape);
 
         Assert.Equal(1, listener.CallCount);
@@ -216,7 +216,7 @@ public class PictureObserverTests
         subscription.Dispose();
 
 
-        var exception = Record.Exception(() => subscription.Dispose());
+        Exception? exception = Record.Exception(() => subscription.Dispose());
 
         Assert.Null(exception);
     }
@@ -225,22 +225,22 @@ public class PictureObserverTests
     [Fact]
     public void Subscription_Take_FirstDisposeNoOp_SecondOwns()
     {
-        var picture = new Picture();
-        var listener = new FakePictureListener();
+        Picture picture = new();
+        FakePictureListener listener = new();
 
-        var subscription = picture.Subscribe(listener);
-        var newSubscription = subscription.Take();
+        Subscription subscription = picture.Subscribe(listener);
+        Subscription newSubscription = subscription.Take();
 
         subscription.Dispose();
 
-        var shape1 = new Shape("sh1", new Color(255, 0, 0), new FakeGeometry());
+        Shape shape1 = new("sh1", new Color(255, 0, 0), new FakeGeometry());
         picture.AddShape(shape1);
 
         Assert.Equal(1, listener.CallCount);
 
         newSubscription.Dispose();
 
-        var shape2 = new Shape("sh2", new Color(0, 255, 0), new FakeGeometry());
+        Shape shape2 = new("sh2", new Color(0, 255, 0), new FakeGeometry());
         picture.AddShape(shape2);
 
         Assert.Equal(1, listener.CallCount);
@@ -249,9 +249,10 @@ public class PictureObserverTests
     [Fact]
     public void Subscription_DoesNotKeepPictureAlive()
     {
-        var listener = new FakePictureListener();
+        FakePictureListener listener = new();
 
-        (WeakReference<Picture> pictureReference, Subscription subscription) = CreateDisposedPictureWithSubscription(listener);
+        (WeakReference<Picture> pictureReference, Subscription subscription) =
+            CreateDisposedPictureWithSubscription(listener);
 
         GC.Collect();
         GC.WaitForPendingFinalizers();
@@ -267,12 +268,46 @@ public class PictureObserverTests
         Subscription Subscription)
         CreateDisposedPictureWithSubscription(FakePictureListener listener)
     {
-        var picture = new Picture();
-        var subscription = picture.Subscribe(listener);
-        var pictureReference = new WeakReference<Picture>(picture);
+        Picture picture = new();
+        Subscription subscription = picture.Subscribe(listener);
+        WeakReference<Picture> pictureReference = new(picture);
 
         picture.Dispose();
 
         return (pictureReference, subscription);
+    }
+
+
+    [Fact]
+    public void Debug_SubscriptionAndPictureReferences()
+    {
+        Picture picture = new();
+        FakePictureListener listener = new();
+
+        Subscription subscription = picture.Subscribe(listener);
+
+        // BREAKPOINT 1: все объекты ещё живы.
+        // Посмотри на picture, subscription и listener.
+
+        WeakReference<Picture> pictureReference = new(picture);
+
+        picture.Dispose();
+
+        // BREAKPOINT 2: picture.Dispose() уже выполнен.
+        // Посмотри на pictureReference и subscription.
+        // Внутри ListenerList поле _notifyAction должно быть null.
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        // BREAKPOINT 3: проверь, собран ли Picture.
+        bool pictureAlive = pictureReference.TryGetTarget(out _);
+
+        Assert.False(pictureAlive);
+
+        // Subscription всё ещё существует.
+        // Его Dispose() должен завершиться без исключения.
+        subscription.Dispose();
     }
 }
