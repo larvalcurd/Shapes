@@ -6,10 +6,8 @@ Shapes.sln
 ├── Shapes/                                // Библиотека ядра
 │   ├── Core/                              // Доменная модель, БЕЗ ввода-вывода (namespace Shapes.Core)
 │   │   ├── Shape.cs                       // класс Shape: Id, Color, IShapeGeometry Geometry
-│   │   ├── Picture.cs                     // хранит List<Shape>, реализует IShapeListener
+│   │   ├── Picture.cs                     // хранит List<Shape>, реализует IShapeListener, IDisposable
 │   │   ├── IShapeGeometry.cs              // стратегия: Move, Draw, GetParams, TypeName
-│   │   ├── IShapeListener.cs              // интерфейс слушателя фигуры
-│   │   ├── IPictureListener.cs            // интерфейс слушателя картины
 │   │   ├── Registry.cs                    // реестр фабрик геометрий
 │   │   ├── Geometries/                    // конкретные стратегии (namespace Shapes.Core.Geometries)
 │   │   │   ├── CircleGeometry.cs
@@ -17,9 +15,11 @@ Shapes.sln
 │   │   │   ├── TriangleGeometry.cs
 │   │   │   ├── LineGeometry.cs
 │   │   │   └── TextGeometry.cs
-│   │   └── ShapeFactory/                  // фабрика геометрий (альтернативная реализация)
-│   │       ├── IShapeGeometryFactory.cs
-│   │       └── ShapeGeometryFactory.cs
+│   │   └── Listeners/                     // Контракты и инфраструктура подписок (namespace Shapes.Core)
+│   │       ├── IShapeListener.cs          // интерфейс слушателя фигуры
+│   │       ├── IPictureListener.cs        // интерфейс слушателя картины
+│   │       ├── ListenerList.cs            // потокобезопасная коллекция подписчиков с защитой от рекурсивных удалений
+│   │       └── Subscription.cs            // токен владения подпиской (IDisposable)
 │   │
 │   ├── Observers/                         // Наблюдатели (namespace Shapes.Observers)
 │   │   └── PictureLogger.cs               // логирование изменений Picture в TextWriter
@@ -55,8 +55,11 @@ Shapes.sln
     │   ├── FakeGeometry.cs
     │   ├── FakeShapeListener.cs
     │   ├── FakePictureListener.cs
+    │   ├── SelfRemovingPictureListener.cs // тестовый слушатель, удаляющий себя во время уведомления
     │   └── OrderCounter.cs
     ├── ShapeTests.cs
     ├── ShapeObserverTests.cs
     ├── PictureTests.cs
-    └── PictureObserverTests.cs
+    ├── PictureObserverTests.cs
+    ├── PictureLoggerTests.cs
+    └── ListenerListTests.cs
