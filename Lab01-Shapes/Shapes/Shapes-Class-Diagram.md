@@ -1,11 +1,10 @@
 # UML Диаграмма классов проекта Shapes
 
-Данный документ содержит схемы архитектуры проекта:
-1. **Каноническую схему паттерна «Стратегия» (GoF)** в общем виде и её проекцию на классы проекта.
-2. **Диаграмму классов предметной области (Production)** — структура работающей системы.
-3. **Диаграмму тестов и моков (Tests & Mocks)** — изолированное модульное тестирование.
-
-> **Примечание:** Элементы паттерна **Наблюдатель (Observer)** намеренно исключены из схемы согласно требованиям к текущему этапу.
+Данный документ содержит актуальную архитектуру проекта:
+1. **Каноническую схему паттерна «Стратегия» (Strategy, GoF)** и её проекцию на кодовую базу.
+2. **Каноническую схему паттерна «Наблюдатель» (Observer, GoF)** и её проекцию на кодовую базу.
+3. **Полную диаграмму рабочих классов (Production)** — структура работающей системы с учетом разделения на слои и подсистемы.
+4. **Диаграмму тестов и моков (Tests & Mocks)** — модульное тестирование и тестовые дублёры.
 
 ---
 
@@ -52,7 +51,52 @@ classDiagram
 
 ---
 
-## 2. Архитектура рабочих классов (Production)
+## 2. Паттерн проектирования «Наблюдатель» (Observer, GoF)
+
+### 2.1. Абстрактная схема паттерна (в общем виде)
+
+```mermaid
+classDiagram
+    direction LR
+
+    class Subject {
+        -List~Observer~ _observers
+        +Attach(Observer o) void
+        +Detach(Observer o) void
+        +Notify() void
+    }
+
+    class Observer {
+        <<interface>>
+        +Update() void
+    }
+
+    class ConcreteObserver {
+        -ConcreteSubject _subject
+        +Update() void
+    }
+
+    Subject o-- "0..*" Observer : notifies
+    Observer <|.. ConcreteObserver
+    ConcreteObserver ..> Subject : observes
+```
+
+### 2.2. Проекция на кодовую базу Shapes (Двойная роль Picture)
+
+В проекте реализован двухуровневый Observer, где `Picture` выступает одновременно в двух ролях:
+1. **`Shape` (Subject) $\rightarrow$ `Picture` (Observer):** Картина подписывается на каждую входящую фигуру через `IShapeListener`. При вызове `shape.Move()` или смене цвета фигура уведомляет картину через `Picture.OnShapeChanged()`.
+2. **`Picture` (Subject) $\rightarrow$ `PictureLogger` (Observer):** Картина управляет подписчиками через `ListenerList<IPictureListener>` / `Subscription`. При любом изменении (добавление, удаление, изменение фигуры) картина транслирует событие внешним наблюдателям (консольному логгеру).
+
+| Роль в паттерне GoF | Класс в проекте Shapes | Описание роли |
+|---|---|---|
+| **Subject 1** | `Shape` | Субъект первого уровня. Уведомляет слушателей при изменении координат, цвета или замене геометрии. |
+| **Observer 1 / Subject 2** | `Picture` | **Observer** для `Shape` (реализует `IShapeListener`) и **Subject** для внешних слушателей (управляет `ListenerList<IPictureListener>`). |
+| **Observer 2** | `PictureLogger` | Внешний консольный наблюдатель (реализует `IPictureListener`), логирующий состояние картины в `TextWriter`. |
+| **Subscription Token** | `Subscription` | RAII-токен подписки (`IDisposable`), позволяющий безопасно и автоматически отписываться при вызове `Dispose()`. |
+
+---
+
+## 3. Архитектура рабочих классов (Production)
 
 ```mermaid
 classDiagram
@@ -61,6 +105,8 @@ classDiagram
     namespace Shapes_Core {
         class Picture {
             -List~Shape~ _shapes
+            -ListenerList~IPictureListener~ _listeners
+            -bool _disposed
             +AddShape(Shape shape) void
             +GetShape(string id) Shape
             +DeleteShape(string id) void
@@ -68,18 +114,28 @@ classDiagram
             +GetShapes() IReadOnlyList~Shape~
             +MovePicture(double dx, double dy) void
             +DrawPicture(ICanvas canvas) void
+            +Subscribe(IPictureListener listener) Subscription
+            +AddListener(IPictureListener listener) void
+            +RemoveListener(IPictureListener listener) void
+            +OnShapeChanged(Shape shape) void
+            +Dispose() void
         }
 
         class Shape {
             +string Id
             +Color Color
             -IShapeGeometry _geometry
+            -ListenerList~IShapeListener~ _listeners
             +Move(double dx, double dy) void
             +Draw(ICanvas canvas) void
             +ReplaceGeometry(IShapeGeometry newGeometry) void
             +GetTypeName() string
             +GetParamsString() string
             +Clone(string newId) Shape
+            +Subscribe(IShapeListener listener) Subscription
+            +AddListener(IShapeListener listener) void
+            +RemoveListener(IShapeListener listener) void
+            +Dispose() void
         }
 
         class IShapeGeometry {
@@ -96,12 +152,41 @@ classDiagram
             +Register(string typeName, Func factory) void
             +Create(string typeName, string rawParams) IShapeGeometry
         }
+    }
 
+    namespace Shapes_Core_Listeners {
+        class IPictureListener {
+            <<interface>>
+            +OnPictureChanged(Picture picture) void
+        }
+
+        class IShapeListener {
+            <<interface>>
+            +OnShapeChanged(Shape shape) void
+        }
+
+        class ListenerList~T~ {
+            -List~T_long~ _listeners
+            -Action~T~ _notifyAction
+            -long _nextId
+            -bool _disposed
+            +Subscribe(T listener) Subscription
+            +Add(T listener) void
+            +Remove(T listener) void
+            +Notify() void
+            +Dispose() void
+        }
+
+        class Subscription {
+            -Action _unsubscribe
+            +Take() Subscription
+            +Dispose() void
+        }
+    }
+
+    namespace Shapes_Core_Geometries {
         class LineGeometry {
-            -double _x1
-            -double _y1
-            -double _x2
-            -double _y2
+            -double _x1, _y1, _x2, _y2
             +string TypeName
             +Move(double dx, double dy) void
             +Draw(ICanvas canvas) void
@@ -111,9 +196,7 @@ classDiagram
         }
 
         class CircleGeometry {
-            -double _x
-            -double _y
-            -double _r
+            -double _x, _y, _r
             +string TypeName
             +Move(double dx, double dy) void
             +Draw(ICanvas canvas) void
@@ -123,10 +206,7 @@ classDiagram
         }
 
         class RectangleGeometry {
-            -double _left
-            -double _top
-            -double _width
-            -double _height
+            -double _left, _top, _width, _height
             +string TypeName
             +Move(double dx, double dy) void
             +Draw(ICanvas canvas) void
@@ -136,12 +216,7 @@ classDiagram
         }
 
         class TriangleGeometry {
-            -double _x1
-            -double _y1
-            -double _x2
-            -double _y2
-            -double _x3
-            -double _y3
+            -double _x1, _y1, _x2, _y2, _x3, _y3
             +string TypeName
             +Move(double dx, double dy) void
             +Draw(ICanvas canvas) void
@@ -151,9 +226,7 @@ classDiagram
         }
 
         class TextGeometry {
-            -double _left
-            -double _top
-            -double _fontSize
+            -double _left, _top, _fontSize
             -string _text
             +string TypeName
             +Move(double dx, double dy) void
@@ -161,6 +234,13 @@ classDiagram
             +GetParamsString() string
             +Clone() IShapeGeometry
             +Parse(string raw)$ TextGeometry
+        }
+    }
+
+    namespace Shapes_Observers {
+        class PictureLogger {
+            -TextWriter _output
+            +OnPictureChanged(Picture picture) void
         }
     }
 
@@ -176,10 +256,8 @@ classDiagram
 
         class SvgCanvas {
             -List~string~ _elements
-            -double _width
-            -double _height
-            -double _currentX
-            -double _currentY
+            -double _width, _height
+            -double _currentX, _currentY
             -string _currentColor
             +SetColor(Color color) void
             +MoveTo(double x, double y) void
@@ -298,20 +376,38 @@ classDiagram
         }
     }
 
-    %% Связи внутри Core
+    %% Реализации IDisposable
+    IDisposable <|.. Picture
+    IDisposable <|.. Shape
+    IDisposable <|.. ListenerList~T~
+    IDisposable <|.. Subscription
+
+    %% Связи внутри Core (Композиция фигур и стратегии)
     Picture "1" *-- "0..*" Shape
     Shape "1" *-- "1" IShapeGeometry
     Shape ..> ICanvas : "uses"
     Registry ..> IShapeGeometry : "creates"
 
+    %% Реализация стратегий геометрии
     IShapeGeometry <|.. LineGeometry
     IShapeGeometry <|.. CircleGeometry
     IShapeGeometry <|.. RectangleGeometry
     IShapeGeometry <|.. TriangleGeometry
     IShapeGeometry <|.. TextGeometry
 
-    %% Зависимость геометрии от холста для отрисовки
+    %% Зависимость геометрии от холста
     IShapeGeometry ..> ICanvas : "uses"
+
+    %% Подсистема Observer: Picture как Observer за Shape
+    IShapeListener <|.. Picture : "implements"
+    Shape *-- "1" ListenerList~IShapeListener~
+    ListenerList~IShapeListener~ ..> IShapeListener : "notifies"
+
+    %% Подсистема Observer: Picture как Subject для внешних слушателей
+    Picture *-- "1" ListenerList~IPictureListener~
+    ListenerList~IPictureListener~ ..> IPictureListener : "notifies"
+    ListenerList~T~ ..> Subscription : "creates"
+    IPictureListener <|.. PictureLogger
 
     %% Связи внутри Gfx
     ICanvas <|.. SvgCanvas
@@ -341,12 +437,13 @@ classDiagram
     %% Связи в ShapesApp
     Bootstrap ..> CommandDispatcher : "creates / configures"
     Bootstrap ..> Registry : "configures"
+    Bootstrap ..> PictureLogger : "creates & attaches"
     Program ..> Bootstrap : "calls"
 ```
 
 ---
 
-## 3. Тестовые классы и моки (Tests & Mocks)
+## 4. Тестовые классы и моки (Tests & Mocks)
 
 ```mermaid
 classDiagram
@@ -363,6 +460,32 @@ classDiagram
             +Draw_SetsColor_DelegatesToGeometryWithCorrectCanvas() void
             +Clone_CreatesIndependentCopy_SameState() void
             +Move_OnClone_DoesNotAffectOriginal() void
+        }
+
+        class ShapeObserverTests {
+            +Move_NotifiesListener() void
+            +AddListener_Twice_DoesNotDuplicateNotifications() void
+        }
+
+        class PictureObserverTests {
+            +AddShape_NotifiesExternalListeners() void
+            +MoveShape_DirectReference_NotifiesPictureListeners() void
+            +DeleteShape_NotifiesExternalListeners() void
+            +DeleteShape_UnsubscribesFromShape_DirectMoveDoesNotNotify() void
+            +MultipleListeners_AllReceiveNotifications() void
+            +RemoveListener_StopsReceivingNotifications() void
+            +FailedOperation_DoesNotNotifyListeners() void
+        }
+
+        class PictureLoggerTests {
+            +AddShape_NotifiesLogger_OutputsPictureChangedAndShapeDetails() void
+            +OnPictureChanged_EmptyPicture_OutputsEmptyMessage() void
+            +DeleteLastShape_NotifiesLoggerWithEmptyPicture() void
+        }
+
+        class ListenerListTests {
+            +Listener_RemovesAnother_SecondDoesNotGetNotified() void
+            +Listener_RemovesOne_OthersStillNotified() void
         }
     }
 
@@ -391,6 +514,22 @@ classDiagram
             +Clone() IShapeGeometry
         }
 
+        class FakeShapeListener {
+            +int CallCount
+            +Shape LastNotifiedShape
+            +OnShapeChanged(Shape shape) void
+        }
+
+        class FakePictureListener {
+            +int CallCount
+            +Picture LastNotifiedPicture
+            +OnPictureChanged(Picture picture) void
+        }
+
+        class SelfRemovingPictureListener {
+            +OnPictureChanged(Picture picture) void
+        }
+
         class OrderCounter {
             -int _next
             +Next() int
@@ -412,13 +551,29 @@ classDiagram
         <<interface>>
     }
 
+    class IShapeListener {
+        <<interface>>
+    }
+
+    class IPictureListener {
+        <<interface>>
+    }
+
+    %% Реализации интерфейсов моками
     ICanvas <|.. FakeCanvas
     IShapeGeometry <|.. FakeGeometry
+    IShapeListener <|.. FakeShapeListener
+    IPictureListener <|.. FakePictureListener
+    IPictureListener <|.. SelfRemovingPictureListener
 
     FakeCanvas *-- "0..*" CanvasCall
     FakeCanvas ..> OrderCounter
     FakeGeometry ..> OrderCounter
 
+    %% Использование в тестах
     ShapeTests ..> FakeGeometry : "uses"
     ShapeTests ..> FakeCanvas : "uses"
+    ShapeObserverTests ..> FakeShapeListener : "uses"
+    PictureObserverTests ..> FakePictureListener : "uses"
+    PictureObserverTests ..> SelfRemovingPictureListener : "uses"
 ```
