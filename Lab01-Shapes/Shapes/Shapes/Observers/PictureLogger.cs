@@ -12,14 +12,15 @@ public class PictureLogger(TextWriter output) : IPictureListener
 
         _output.WriteLine("Picture changed:");
 
-        var shapes = picture.GetShapes();
+        IReadOnlyList<Shape> shapes = picture.GetShapes();
+
         if (shapes.Count == 0)
         {
             _output.WriteLine("  Picture is empty");
             return;
         }
 
-        foreach (var shape in shapes)
+        foreach (Shape shape in shapes)
         {
             string paramsString = shape.GetParamsString();
             string line = string.IsNullOrWhiteSpace(paramsString)

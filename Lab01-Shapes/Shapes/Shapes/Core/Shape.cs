@@ -43,7 +43,7 @@ public class Shape : IDisposable
 
     public void Draw(ICanvas canvas)
     {
-        canvas.SetColor(Color);
+        canvas.SetColor(Color); 
         _geometry.Draw(canvas);
     }
 
@@ -58,6 +58,10 @@ public class Shape : IDisposable
     public string GetParamsString() => _geometry.GetParamsString();
 
     // TODO: паттерн "прототип"
+    // Используется для создания копии объекта (клонирования) на основе уже существующего экземпляра.
+    // В данном случае реализуется "глубокое копирование" (Deep Copy), так как сложный внутренний 
+    // объект '_geometry' тоже клонируется, а не просто копируется по ссылке. Это предотвращает 
+    // ситуацию, когда изменение геометрии у клона меняет геометрию у оригинала.
     public Shape Clone(string newId) => new(newId, Color, _geometry.Clone());
 
     public void AddListener(IShapeListener listener) => _listeners.Add(listener);

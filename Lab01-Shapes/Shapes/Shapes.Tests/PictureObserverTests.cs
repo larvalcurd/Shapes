@@ -62,7 +62,7 @@ public class PictureObserverTests
         FakePictureListener listener = new();
         picture.AddListener(listener);
 
-        Shape duplicateShape = new("sh1", new Color(0, 255, 0), new FakeGeometry());
+        Shape duplicateShape = new("sh2", new Color(0, 255, 0), new FakeGeometry());
         Assert.Throws<InvalidOperationException>(() => picture.AddShape(duplicateShape));
 
         Assert.Equal(0, listener.CallCount);

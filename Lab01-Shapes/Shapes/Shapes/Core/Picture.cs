@@ -21,7 +21,7 @@ public class Picture : IShapeListener, IDisposable
             
         _disposed = true;
         
-        foreach (var shape in _shapes) shape.RemoveListener(this);
+        foreach (Shape shape in _shapes) shape.RemoveListener(this);
         
         _shapes.Clear();
         _listeners.Dispose();
@@ -56,14 +56,9 @@ public class Picture : IShapeListener, IDisposable
 
     public void DeleteShape(string id)
     {
-        Shape? shape = GetShape(id);
-
-        if (shape == null)
-        {
-            throw new InvalidOperationException(
+        Shape? shape = GetShape(id) ?? throw new InvalidOperationException(
                 $"Shape with id '{id}' does not exist."
             );
-        }
 
         shape.RemoveListener(this);
         _shapes.Remove(shape);
@@ -73,15 +68,10 @@ public class Picture : IShapeListener, IDisposable
 
     public void CloneShape(string id, string newId)
     {
-        Shape? shape = GetShape(id);
-
-        if (shape == null)
-        {
-            throw new InvalidOperationException(
+        Shape? shape = GetShape(id) ?? throw new InvalidOperationException(
                 $"Shape with id '{id}' does not exist."
             );
-        }
-
+            
         Shape newShape = shape.Clone(newId);
 
         AddShape(newShape);

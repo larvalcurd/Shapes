@@ -69,24 +69,24 @@ public class ListenerList<T>(Action<T> notifyAction) : IDisposable
         if (_disposed)
             return;
 
-        var action = _notifyAction;
+        Action<T>? action = _notifyAction;
 
         if (action is null)
             return;
 
         var snapshot = _listeners.ToList();
 
-        foreach (var entry in snapshot)
+        foreach ((T Listener, long Id) in snapshot)
         {
             if (_disposed)
                 return;
 
-            bool subscriptionExists = _listeners.Any(current => ReferenceEquals(current.Listener, entry.Listener) && current.Id == entry.Id);
+            bool subscriptionExists = _listeners.Any(current => ReferenceEquals(current.Listener, Listener) && current.Id == Id);
 
             if (!subscriptionExists)
                 continue;
 
-            action(entry.Listener);
+            action(Listener);
         }
     }
 }
