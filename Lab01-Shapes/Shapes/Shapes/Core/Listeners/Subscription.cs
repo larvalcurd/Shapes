@@ -1,4 +1,4 @@
-﻿namespace Shapes.Core;
+﻿namespace Shapes.Core.Listeners;
 
 public class Subscription : IDisposable
 {
@@ -22,7 +22,7 @@ public class Subscription : IDisposable
         {
             throw new InvalidOperationException("Subscription has already been disposed or taken.");
         }
-        
+
         var subscription = new Subscription(_unsubscribe);
         _unsubscribe = null;
         return subscription;

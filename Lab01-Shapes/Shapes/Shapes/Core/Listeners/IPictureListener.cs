@@ -1,4 +1,4 @@
-namespace Shapes.Core;
+namespace Shapes.Core.Listeners;
 
 public interface IPictureListener
 {

@@ -1,3 +1,4 @@
+using Shapes.Core.Listeners;
 using Shapes.Gfx;
 
 namespace Shapes.Core;
@@ -7,7 +8,7 @@ public class Picture : IShapeListener, IDisposable
     private readonly List<Shape> _shapes = [];
 
     private readonly ListenerList<IPictureListener> _listeners;
-    
+
     private bool _disposed;
 
     public Subscription Subscribe(IPictureListener listener)
@@ -18,11 +19,11 @@ public class Picture : IShapeListener, IDisposable
     public void Dispose()
     {
         if (_disposed) return;
-            
+
         _disposed = true;
-        
+
         foreach (Shape shape in _shapes) shape.RemoveListener(this);
-        
+
         _shapes.Clear();
         _listeners.Dispose();
     }
@@ -71,7 +72,7 @@ public class Picture : IShapeListener, IDisposable
         Shape? shape = GetShape(id) ?? throw new InvalidOperationException(
                 $"Shape with id '{id}' does not exist."
             );
-            
+
         Shape newShape = shape.Clone(newId);
 
         AddShape(newShape);

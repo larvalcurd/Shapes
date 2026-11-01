@@ -1,4 +1,5 @@
 using Shapes.Core;
+using Shapes.Core.Listeners;
 using Shapes.Gfx;
 using Shapes.Tests.Mocks;
 
@@ -62,7 +63,7 @@ public class PictureObserverTests
         FakePictureListener listener = new();
         picture.AddListener(listener);
 
-        Shape duplicateShape = new("sh2", new Color(0, 255, 0), new FakeGeometry());
+        Shape duplicateShape = new("sh1", new Color(0, 255, 0), new FakeGeometry());
         Assert.Throws<InvalidOperationException>(() => picture.AddShape(duplicateShape));
 
         Assert.Equal(0, listener.CallCount);
@@ -161,7 +162,7 @@ public class PictureObserverTests
 
         picture.Dispose();
 
-        Exception? exception = Record.Exception(() => subscription.Dispose());
+        Exception? exception = Record.Exception(subscription.Dispose);
         Assert.Null(exception);
     }
 
@@ -275,39 +276,5 @@ public class PictureObserverTests
         picture.Dispose();
 
         return (pictureReference, subscription);
-    }
-
-
-    [Fact]
-    public void Debug_SubscriptionAndPictureReferences()
-    {
-        Picture picture = new();
-        FakePictureListener listener = new();
-
-        Subscription subscription = picture.Subscribe(listener);
-
-        // BREAKPOINT 1: все объекты ещё живы.
-        // Посмотри на picture, subscription и listener.
-
-        WeakReference<Picture> pictureReference = new(picture);
-
-        picture.Dispose();
-
-        // BREAKPOINT 2: picture.Dispose() уже выполнен.
-        // Посмотри на pictureReference и subscription.
-        // Внутри ListenerList поле _notifyAction должно быть null.
-
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        GC.Collect();
-
-        // BREAKPOINT 3: проверь, собран ли Picture.
-        bool pictureAlive = pictureReference.TryGetTarget(out _);
-
-        Assert.False(pictureAlive);
-
-        // Subscription всё ещё существует.
-        // Его Dispose() должен завершиться без исключения.
-        subscription.Dispose();
     }
 }

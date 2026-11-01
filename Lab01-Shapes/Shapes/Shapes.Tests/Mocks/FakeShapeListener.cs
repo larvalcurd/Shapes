@@ -1,4 +1,5 @@
 using Shapes.Core;
+using Shapes.Core.Listeners;
 
 namespace Shapes.Tests.Mocks;
 
