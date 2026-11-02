@@ -1,4 +1,4 @@
-﻿namespace Shapes.Core;
+﻿namespace Shapes.Core.Listeners;
 
 public class ListenerList<T>(Action<T> notifyAction) : IDisposable
     where T : class

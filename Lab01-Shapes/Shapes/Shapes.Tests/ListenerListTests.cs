@@ -1,6 +1,7 @@
 ﻿using Shapes.Gfx;
 using Shapes.Core;
 using Shapes.Tests.Mocks;
+using Shapes.Core.Listeners;
 
 namespace Shapes.Tests;
 
