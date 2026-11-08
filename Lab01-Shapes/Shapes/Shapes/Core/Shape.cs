@@ -1,3 +1,4 @@
+using Shapes.Core.Events;
 using Shapes.Core.Listeners;
 using Shapes.Gfx;
 
@@ -5,7 +6,9 @@ namespace Shapes.Core;
 
 public class Shape : IDisposable
 {
-    private readonly ListenerList<IShapeListener> _listeners;
+    private readonly Signal<ShapeMovedArgs> _moved = new();
+    private readonly Signal<ShapeColorChangedArgs> _colorChanged = new();
+    private readonly Signal<ShapeGeometryChangedArgs> _geometryChanged = new();
 
     private Color _color;
 
@@ -22,11 +25,9 @@ public class Shape : IDisposable
 
     public Shape(string id, Color color, IShapeGeometry geometry)
     {
-        Id = id;
+        Id = id ?? throw new ArgumentNullException(nameof(id));
         _color = color;
-        _geometry = geometry;
-        _listeners = new ListenerList<IShapeListener>(listener => listener.OnShapeChanged(this)
-        );
+        _geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
     }
 
     public string Id { get; }
@@ -36,17 +37,25 @@ public class Shape : IDisposable
         get => _color;
         set
         {
+            Color oldColor = _color;
             _color = value;
-            _listeners.Notify();
+            _colorChanged.Notify(new ShapeColorChangedArgs(this, oldColor));
         }
     }
-
-    public void Dispose() => _listeners.Dispose();
 
     public void Move(double dx, double dy)
     {
         _geometry.Move(dx, dy);
-        _listeners.Notify();
+        _moved.Notify(new ShapeMovedArgs(this, dx, dy));
+    }
+
+    public void ReplaceGeometry(IShapeGeometry newGeometry)
+    {
+        ArgumentNullException.ThrowIfNull(newGeometry);
+
+        IShapeGeometry oldGeometry =_geometry;
+        _geometry = newGeometry;
+        _geometryChanged.Notify(new ShapeGeometryChangedArgs(this, oldGeometry));
     }
 
     public void Draw(ICanvas canvas)
@@ -55,14 +64,7 @@ public class Shape : IDisposable
         _geometry.Draw(canvas);
     }
 
-    public void ReplaceGeometry(IShapeGeometry newGeometry)
-    {
-        _geometry = newGeometry;
-        _listeners.Notify();
-    }
-
     public string GetTypeName() => _geometry.TypeName;
-
     public string GetParamsString() => _geometry.GetParamsString();
 
     // TODO: паттерн "прототип"
@@ -72,9 +74,14 @@ public class Shape : IDisposable
     // ситуацию, когда изменение геометрии у клона меняет геометрию у оригинала.
     public Shape Clone(string newId) => new(newId, Color, _geometry.Clone());
 
-    public void AddListener(IShapeListener listener) => _listeners.Add(listener);
+    internal Subscription OnMoved(Action<ShapeMovedArgs> handler) => _moved.Subscribe(handler);
+    internal Subscription OnColorChanged(Action<ShapeColorChangedArgs> handler) => _colorChanged.Subscribe(handler);
+    internal Subscription OnGeometryChanged(Action<ShapeGeometryChangedArgs> handler) => _geometryChanged.Subscribe(handler);
 
-    public void RemoveListener(IShapeListener listener) => _listeners.Remove(listener);
-
-    public Subscription Subscribe(IShapeListener listener) => _listeners.Subscribe(listener);
+    public void Dispose()
+    {
+        _moved.Dispose();
+        _colorChanged.Dispose();
+        _geometryChanged.Dispose();
+    }
 }
