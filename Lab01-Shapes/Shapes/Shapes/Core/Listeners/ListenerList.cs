@@ -4,6 +4,7 @@ public class ListenerList<T>(Action<T> notifyAction) : IDisposable
     where T : class
 {
     private readonly List<(T Listener, long Id)> _listeners = [];
+    private readonly HashSet<long> _activeIds = [];
     private Action<T>? _notifyAction = notifyAction ?? throw new ArgumentNullException(nameof(notifyAction));
     private long _nextId;
     private bool _disposed;
@@ -23,6 +24,7 @@ public class ListenerList<T>(Action<T> notifyAction) : IDisposable
         _disposed = true;
         _notifyAction = null;
         _listeners.Clear();
+        _activeIds.Clear();
     }
 
     public void Add(T listener)
@@ -41,6 +43,7 @@ public class ListenerList<T>(Action<T> notifyAction) : IDisposable
         _nextId++;
 
         _listeners.Add((listener, id));
+        _activeIds.Add(id);
     }
 
     public void Remove(T listener)
@@ -60,6 +63,7 @@ public class ListenerList<T>(Action<T> notifyAction) : IDisposable
 
         if (indexToRemove >= 0)
         {
+            _activeIds.Remove(_listeners[indexToRemove].Id);
             _listeners.RemoveAt(indexToRemove);
         }
     }
@@ -81,10 +85,7 @@ public class ListenerList<T>(Action<T> notifyAction) : IDisposable
             if (_disposed)
                 return;
 
-            bool subscriptionExists = _listeners.Any(current => ReferenceEquals(current.Listener, Listener) && current.Id == Id);
-
-            if (!subscriptionExists)
-                continue;
+            if (!_activeIds.Contains(Id)) continue;
 
             action(Listener);
         }
